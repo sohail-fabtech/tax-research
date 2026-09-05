@@ -31,7 +31,7 @@ The two examples always **contrast**. That is deliberate: the boundary between t
 
 ## The calculation order
 
-Twenty steps, run in this exact sequence, once per year, for 48 years.
+Twenty-one steps, run in this exact sequence, once per year, for 48 years.
 **The order is part of the maths.** Swap any two and the answer changes.
 
 ```
@@ -49,7 +49,14 @@ Twenty steps, run in this exact sequence, once per year, for 48 years.
    ── FORCED INCOME ───────────────────────────────────────────────
     4  SOCIAL SECURITY  ────►  5  RMD
        │                          │
-   ── THE FOUR GATES (K-1 clients only) ───────────────────────────
+   ── REAL ESTATE PRE-GATE (property owners only) ─────────────────
+       │                          │
+   5b  CLASSIFY EACH PROPERTY
+       │  §280A personal use?  → capped at rental income, STOP
+       │  average stay ≤7 days? → not a rental activity
+       │  material participation? → passive or non-passive
+       │
+   ── THE FOUR GATES (K-1 and property owners) ────────────────────
        │                          │
     6  GATE 1  BASIS        §704(d) / §1366(d)
        │  blocked ──► suspendedBasis
@@ -112,6 +119,7 @@ Steps 11, 13 and 14 are **three separate calculations on the same year**, each w
 | 3 | Contributions | What can we save? | Age 60–63 catch-up stacked instead of replacing |
 | 4 | Social Security | What does the government pay? | Claiming age adjustment missed |
 | 5 | RMD | What are we forced to withdraw? | Wrong start age (73 vs 75) |
+| 5b | Real estate classification | Is the property's loss usable, and is it passive? | Classification skipped — $203,409 vs $0 |
 | 6 | Gate 1 — Basis | Do we have investment to absorb the loss? | Partnership vs S-corp debt rules confused |
 | 7 | Gate 2 — At-risk | Could we actually lose it? | Nonrecourse debt wrongly treated as at-risk |
 | 8 | Gate 3 — Passive | Can it offset this income? | Losses deducted against salary |
@@ -124,7 +132,7 @@ Steps 11, 13 and 14 are **three separate calculations on the same year**, each w
 | 15 | Cash flow | Surplus or shortfall? | Taxes not deducted before the surplus |
 | 16 | Growth | What did it earn? | `r/12` instead of the true monthly rate |
 | 17 | Insurance | What is in the policy? | No lapse test |
-| 18 | Real estate | How much equity, and is the loss usable? | Classification skipped — passive vs non-passive |
+| 18 | Real estate equity | How much equity? | Straight-line principal instead of amortisation |
 | 19 | Estate | What reaches the heirs? | Net worth reported as legacy |
 | 20 | Deflate | What is it really worth? | Inflation counted twice, or not at all |
 
@@ -415,9 +423,84 @@ $2,247,200 / 24.6  =   $91,350 forced out at age 75
 
 ---
 
+# STEP 5b — Real estate classification (pre-gate)
+
+**What it does.** Decides, before any loss gate runs, whether a property's loss is even usable — and if so, whether it is passive or not.
+
+**Why it matters.** Two identical properties with identical losses produce **$203,409** of deduction or **$0**, decided only by average stay length and hours worked. Nothing else in this document swings that hard on a single classification.
+
+### The formula
+
+```
+Q1  Is personal use excessive?          → §280A          → if yes, STOP: no loss allowed
+Q2  Is the average stay ≤ 7 days?       → §1.469-1T      → if yes, NOT a rental activity
+Q3  Does the owner materially participate? → §1.469-5T   → decides passive vs non-passive
+```
+
+```
+threshold = MAX(14 days, 0.10 × daysRentedAtFairValue)
+
+IF personalUseDays > threshold:
+    property is a PERSONAL RESIDENCE
+    deductions are CAPPED at rental income — no loss is allowed
+    excess carries forward under §280A (not as a passive loss)
+```
+
+### Example 1 — a long-term rental
+
+$1,200,000 property, cost segregation study done, $60,000 net operating income, $263,409 depreciation → **$203,409 tax loss**. Let on 12-month leases:
+
+```
+Average stay 365 days → IS a rental activity → PASSIVE by default
+Hours worked are irrelevant — a rental activity is passive no matter how hard you work it
+$25,000 allowance = $0 (MAGI above $150,000)
+
+Deductible this year        $0
+Suspended                   $203,409
+```
+
+### Example 2 — the identical property, let short-term
+
+Same building, same loss, but let on an average 5-day stay with 120 hours of self-management and no property manager working more:
+
+```
+Average stay 5 days  → NOT a rental activity (Reg. §1.469-1T(e)(3)(ii)(A))
+Material participation met → Test 3: >100 hrs and nobody participates more
+→ NON-PASSIVE
+
+Deductible against W-2 now  $203,409
+Tax value at 35%            $71,193
+```
+
+**The difference:** **$203,409 deductible versus nothing** — same property, same loss.
+
+> **Three things almost everyone gets wrong here.**
+> **1.** Being non-passive does **not** exempt the loss from the §461(l) cap at Step 9. Four such properties would produce $813,636 of loss, of which only **$512,000** is deductible; $301,636 becomes an NOL.
+> **2.** Real estate professional status is **irrelevant** to short-term rentals — REPS is a rule about *rental activities*, and an STR under the 7-day rule is not one.
+> **3.** The $25,000 allowance does not apply to STRs either, for the same reason.
+
+> **Cost segregation is a timing strategy, not a free deduction.** It turns a $34,545 first-year write-off into $263,409 — but it lowers basis, so the 25% depreciation recapture on sale is correspondingly larger. Unless the property is held until death, when §1014 erases both.
+
+### Risks and common mistakes
+
+| What goes wrong | Who it hurts | How to prevent it |
+|---|---|---|
+| Classification skipped entirely | Client — $203,409 vs $0 on the same property | Run the three questions before any loss gate |
+| Hours assumed to make a long-term rental non-passive | Client — deducts a suspended loss | A rental activity is passive regardless of hours, unless REPS |
+| REPS pursued to fix a short-term rental | Client — wasted effort, no benefit | STRs are not rental activities |
+| STR loss assumed exempt from the EBL cap | Client — plans on a capped deduction | Non-passive still meets Step 9 |
+| §280A personal use test skipped | Client — claims a loss that is capped at rental income | Test before the gates |
+| Classification treated as permanent | Both — it can flip year to year | Re-test average stay and hours annually |
+| Cost seg modelled without the recapture consequence | Client — overstates lifetime benefit | Carry accumulated depreciation; 25% on sale |
+| Substantial services confused with the 7-day test | Client — unexpected 15.3% SE tax | Two independent tests |
+
+**Detail →** [07-REAL-ESTATE-EQUITY.md](07-REAL-ESTATE-EQUITY.md)
+
+---
+
 # THE FOUR GATES — steps 6 to 9
 
-**Only for clients with a K-1** (a partnership or S-corp interest) or a rental.
+**Only for clients with a K-1** (a partnership or S-corp interest) **or a rental.** For property, Step 5b runs first and decides whether the loss even arrives here.
 
 **What they do.** A business loss cannot simply be subtracted from income. It has to pass four tests, in order. Whatever each test blocks is **parked** — not lost — in its own bucket, waiting for a specific event to release it.
 
@@ -1167,64 +1250,6 @@ Paid in the year    $37,924      identical payment
 | Primary residence modelled as income-producing | Client | It has negative cash flow |
 | Multiple properties blended into one average | Developer | Model each separately |
 
-### Before any of this — classify the property
-
-Equity mechanics are the easy half. The half that decides the tax bill is **classification**, and it runs before the loss gates.
-
-```
-Q1  Is personal use excessive?          → §280A          → if yes, STOP: no loss allowed
-Q2  Is the average stay ≤ 7 days?       → §1.469-1T      → if yes, NOT a rental activity
-Q3  Does the owner materially participate? → §1.469-5T   → decides passive vs non-passive
-```
-
-### Example 3 — a long-term rental
-
-$1,200,000 property, cost segregation study done, $60,000 net operating income, $263,409 depreciation → **$203,409 tax loss**. Let on 12-month leases:
-
-```
-Average stay 365 days → IS a rental activity → PASSIVE by default
-Hours worked are irrelevant — a rental activity is passive no matter how hard you work it
-$25,000 allowance = $0 (MAGI above $150,000)
-
-Deductible this year        $0
-Suspended                   $203,409
-```
-
-### Example 4 — the identical property, let short-term
-
-Same building, same loss, but let on an average 5-day stay with 120 hours of self-management and no property manager working more:
-
-```
-Average stay 5 days  → NOT a rental activity (Reg. §1.469-1T(e)(3)(ii)(A))
-Material participation met → Test 3: >100 hrs and nobody participates more
-→ NON-PASSIVE
-
-Deductible against W-2 now  $203,409
-Tax value at 35%            $71,193
-```
-
-**The difference:** **$203,409 deductible versus nothing** — same property, same loss, decided purely by average stay length and hours.
-
-> **Three things almost everyone gets wrong here.**
-> **1.** Being non-passive does **not** exempt the loss from the §461(l) cap. Four such properties would produce $813,636 of loss, of which only **$512,000** is deductible; $301,636 becomes an NOL.
-> **2.** Real estate professional status is **irrelevant** to short-term rentals — REPS is a rule about *rental activities*, and an STR under the 7-day rule is not one.
-> **3.** The $25,000 allowance does not apply to STRs either, for the same reason.
-
-> **Cost segregation is a timing strategy, not a free deduction.** It turns a $34,545 first-year write-off into $263,409 — but it lowers basis, so the 25% depreciation recapture on sale is correspondingly larger. Unless the property is held until death, when §1014 erases both.
-
-### Risks and common mistakes — classification
-
-| What goes wrong | Who it hurts | How to prevent it |
-|---|---|---|
-| Classification skipped entirely | Client — $203,409 vs $0 on the same property | Run the three questions before any other real estate step |
-| Hours assumed to make a long-term rental non-passive | Client — deducts a suspended loss | A rental activity is passive regardless of hours, unless REPS |
-| REPS pursued to fix a short-term rental | Client — wasted effort, no benefit | STRs are not rental activities |
-| STR loss assumed exempt from the EBL cap | Client — plans on a capped deduction | Non-passive still meets gate 4 |
-| §280A personal use test skipped | Client — claims a loss that is capped at rental income | Test before the gates |
-| Classification treated as permanent | Both — it can flip year to year | Re-test average stay and hours annually |
-| Cost seg modelled without the recapture consequence | Client — overstates lifetime benefit | Carry accumulated depreciation; 25% on sale |
-| Substantial services confused with the 7-day test | Client — unexpected 15.3% SE tax | Two independent tests |
-
 **Detail →** [07-REAL-ESTATE-EQUITY.md](07-REAL-ESTATE-EQUITY.md)
 
 ---
@@ -1348,7 +1373,7 @@ Every one of these is drawn from a step above. Ranked by what they cost on the e
 | 9 | Age 60–63 catch-up stacked, not substituted | 3 | **$8,000/yr** the client cannot contribute | `ELSE IF`, never `+` |
 | 10 | Claiming Social Security at 62 without modelling it | 4 | **$359,171** over 28 years | Apply the claiming adjustment |
 
-> **Runner-up, and rising fast:** skipping real estate classification (Step 18). The same property with the same loss is worth **$203,409** of current deduction or **$0**, decided only by average stay length and hours worked. For a client with several properties this outranks most of the list above.
+> **Runner-up, and rising fast:** skipping real estate classification (Step 5b). The same property with the same loss is worth **$203,409** of current deduction or **$0**, decided only by average stay length and hours worked. For a client with several properties this outranks most of the list above.
 
 ---
 
@@ -1413,7 +1438,7 @@ Every one of these is drawn from a step above. Ranked by what they cost on the e
 | 4 | [04-SOCIAL-SECURITY.md](04-SOCIAL-SECURITY.md) |
 | 5 | [05-RMD.md](05-RMD.md) |
 | 17 | [06-INSURANCE-CASH-VALUE.md](06-INSURANCE-CASH-VALUE.md) |
-| 18 | [07-REAL-ESTATE-EQUITY.md](07-REAL-ESTATE-EQUITY.md) |
+| 5b, 18 | [07-REAL-ESTATE-EQUITY.md](07-REAL-ESTATE-EQUITY.md) |
 | 19 | [08-ESTATE-VALUE.md](08-ESTATE-VALUE.md) |
 | Full 48-year worked table | [09-WORKED-EXAMPLE.md](09-WORKED-EXAMPLE.md) |
 | Every source + test vectors | [10-SOURCES-AND-COMPETITORS.md](10-SOURCES-AND-COMPETITORS.md) |

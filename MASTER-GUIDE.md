@@ -4,7 +4,7 @@
 
 Tax year **2026** · Market **United States** · Verified **September 2026**
 
-> **Looking to explain this to a client, or see worked examples and risks?** Read [HANDBOOK.md](HANDBOOK.md) instead — same 20 steps, with two contrasting examples and a risk table for each. This file is the lean build reference.
+> **Looking to explain this to a client, or see worked examples and risks?** Read [HANDBOOK.md](HANDBOOK.md) instead — same 21 steps, with two contrasting examples and a risk table for each. This file is the lean build reference.
 
 > **How to read this file.** Each step has three parts: a plain-English explanation anyone can follow, the exact formula for whoever builds it, and a link to the detailed module for constants and edge cases. The formulas here are copied word-for-word from modules 00–08 — nothing is simplified or reworded. (The one exception is the Step 8 cash-flow identity, which the modules name but never write out; it is flagged as new in the sources table.)
 
@@ -62,7 +62,8 @@ FOR each year n, age a:
   STEP 3   Compute retirement contributions → 03
   STEP 4   Compute Social Security benefit → 04
   STEP 5   Compute RMD (if age ≥ RMD age)  → 05
-  STEP 5a  Apply loss limitation gates      → 11   (only if the client has K-1s)
+  STEP 5b  Classify each property           → 07   (property owners only)
+  STEP 5a  Apply loss limitation gates      → 11   (K-1s and property)
   STEP 6   Assemble taxable income         → 02
   STEP 7   Compute tax on that income      → 02
   STEP 8   Compute cash flow surplus/deficit
@@ -401,6 +402,41 @@ taxableRMD = MAX(0, rmd − qualifiedCharitableDistribution)
 > **Roth accounts are exempt.** Roth IRAs always were; Roth 401(k)s became exempt in 2024.
 
 **Full detail →** [05-RMD.md](05-RMD.md)
+
+---
+
+# STEP 5b — Real estate classification (property owners only)
+
+**In plain English.** Before any loss gate runs, each property has to be classified. Whether a loss is usable at all — and whether it is passive — is decided here, not later.
+
+```
+Q1  Is personal use excessive?          → §280A          → if yes, STOP: no loss allowed
+Q2  Is the average stay ≤ 7 days?       → §1.469-1T      → if yes, NOT a rental activity
+Q3  Does the owner materially participate? → §1.469-5T   → decides passive vs non-passive
+```
+
+```
+threshold = MAX(14 days, 0.10 × daysRentedAtFairValue)
+
+IF personalUseDays > threshold:
+    property is a PERSONAL RESIDENCE
+    deductions are CAPPED at rental income — no loss is allowed
+    excess carries forward under §280A (not as a passive loss)
+```
+
+| Average stay | Material participation | Result |
+|---|---|---|
+| ≤ 7 days | **Yes** | **Non-passive** — losses offset W-2 income |
+| ≤ 7 days | No | Passive — losses suspended |
+| > 7 days | Yes, but not a REP | **Still passive** — hours do not help |
+| > 7 days | REP + materially participates | Non-passive |
+| > 7 days | Active participation only | Passive, but up to $25,000 allowance |
+
+> Same property, same loss: **$203,409 deductible or $0**, decided only by average stay and hours.
+
+> **A non-passive short-term rental loss skips Gate 3 but still meets Gate 4.** Clearing the 7-day test does not exempt the loss from the $512,000 excess business loss cap. REPS and the $25,000 allowance are both irrelevant to short-term rentals — they are rules about *rental activities*, and an STR under the 7-day rule is not one.
+
+**Full detail →** [07-REAL-ESTATE-EQUITY.md](07-REAL-ESTATE-EQUITY.md)
 
 ---
 
@@ -1058,6 +1094,15 @@ Every formula in this guide, and its origin. **Law** means the number or method 
 | `niit = 0.038 × MIN(NII, MAGI − threshold)` | **Law** | IRC §1411 | `CRS 3.8% Net Investment Income Tax IF11820` |
 | NIIT thresholds frozen since 2013 | **Law** | IRC §1411 — no indexing provision | same |
 | IRMAA, two-year lookback | **Law** | CMS 2026 fact sheet | `CMS 2026 Medicare Parts A B premiums deductibles` |
+
+### Step 5b · Real estate classification
+
+| Formula | Type | Source | Google this |
+|---|---|---|---|
+| ≤7-day rule — not a rental activity | **Law** | Reg. §1.469-1T(e)(3)(ii)(A) | `1.469-1T(e)(3)(ii)(A) seven day average rental` |
+| Seven material participation tests | **Law** | Reg. §1.469-5T(a) | `1.469-5T material participation seven tests` |
+| §280A personal use, 14 days / 10% | **Law** | IRC §280A | `section 280A vacation home 14 days 10 percent` |
+| REPS 750 hrs + 50% | **Law** | IRC §469(c)(7) | `real estate professional 750 hours` |
 
 ### Step 5a · Loss limitation gates
 

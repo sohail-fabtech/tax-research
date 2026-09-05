@@ -18,7 +18,11 @@ The "Google this" column is the literal phrase that surfaces the source, so noth
 | LTCG 0%/15% breakpoints MFJ | $98,900 / $613,700 | same | `2026 capital gains tax brackets Rev Proc 2025-32` |
 | Senior bonus deduction | $6,000 / $12,000, 2025–2028 | OBBBA (P.L. 119-21) | `OBBBA senior bonus deduction 65 phase out 75000 150000` |
 | QBI threshold | $201,750 / $403,500 | Rev. Proc. 2025-32 | `2026 section 199A QBI threshold Rev Proc 2025-32` |
+| QBI phase-out ends | $276,750 / $553,500 | Rev. Proc. 2025-32 | same |
 | QBI minimum deduction | $400 | OBBBA §70105 | `OBBBA section 70105 QBI minimum deduction $400` |
+| **SSTB definition** | health, law, accounting, actuarial, performing arts, consulting, athletics, financial services, investing, trading, plus "reputation or skill" | IRC §199A(d)(2) → §1202(e)(3)(A) | `199A SSTB definition specified service trade or business` |
+| **Engineering and architecture excluded** | keep the full 20% at any income | IRC §199A(d)(2) — adopts the §1202 list **minus** those two fields | `199A engineers architects excluded SSTB` |
+| "Reputation or skill" scope | narrow — endorsements, name/image/likeness licensing, appearance fees only | Reg. §1.199A-5(b)(2)(xiv) | `199A reputation or skill final regulations narrow` |
 | NIIT threshold | $200,000 / $250,000 — **not indexed** | IRC §1411 | `CRS 3.8% Net Investment Income Tax IF11820` |
 
 **Primary link:** <https://www.irs.gov/newsroom/irs-releases-tax-inflation-adjustments-for-tax-year-2026-including-amendments-from-the-one-big-beautiful-bill>
@@ -217,9 +221,9 @@ Check: IRS Notice 2025-67.
 
 ## PART C — COMPETITOR BENCHMARK
 
-### The key finding: Drake is not actually a competitor for this
+### Finding 1: Drake is not actually a competitor for this
 
-The user named Drake Tax as the benchmark. Having examined what it does, **Drake Tax Planner cannot produce a Roadmap to Age 90 and is not designed to.**
+Drake Tax is frequently cited as the benchmark for this kind of system. Examined against the requirement, **Drake Tax Planner cannot produce a Roadmap to Age 90 and is not designed to.**
 
 | Drake Tax Planner | Capability |
 |---|---|
@@ -256,7 +260,7 @@ These are table stakes. Missing any one of them makes the output non-credible to
 6. **Separate account registrations** — pre-tax / Roth / taxable tracked apart
 7. **Monte Carlo or at least multi-scenario** ranges, not a single deterministic line
 
-### The real estate software category — and the gap nobody fills
+### Finding 2: the real estate software category — and the gap nobody fills
 
 Benchmarking only against tax-prep and financial-planning software missed an entire category. Real estate investors already use dedicated tools:
 
@@ -292,13 +296,23 @@ Planning software models a property as a single line that appreciates. It does n
 
 ### Honest gaps to close
 
-| Gap | Priority |
+| Gap | Priority | Note |
+|---|---|---|
+| No Monte Carlo — single deterministic path only | **High** | Every serious planning competitor has it. The largest remaining gap |
+| **State conformity not modelled** | **High** | California decouples from federal §461(l), §172 and bonus depreciation. A CA real estate client's state result will not match the federal one |
+| No state tax detail beyond a flat rate | High | Graduated states (CA, NY, NJ, OR, MN, HI) need real brackets |
+| Insurance modelled without real policy mechanics (COI, caps, lapse) | High | Module 06 specifies what is needed |
+| No Roth conversion optimiser | Medium | The pre-RMD window is identified but not optimised |
+| No account aggregation / live data | Medium | — |
+| Opportunity Zones, DSTs, §721 UPREITs, installment sales | Low | Deliberately out of scope for v1; listed in module 07's edge-case matrix |
+
+### Closed since the first pass
+
+| Was a gap | Now covered |
 |---|---|
-| No Monte Carlo — single deterministic path only | **High** — every serious competitor has it |
-| No state tax detail beyond a flat rate | High |
-| Insurance modelled without real policy mechanics (COI, caps, lapse) | High — module 06 specifies what is needed |
-| No Roth conversion optimiser | Medium — the window is identified but not optimised |
-| No account aggregation / live data | Medium |
+| Real estate modelled as a single appreciating asset | Module 07: classification, ≤7-day rule, §280A, material participation, REPS, cost segregation, §1031, §199A safe harbor |
+| No loss limitation logic | Module 11: the four gates plus the two real estate pre-gates |
+| Research framed for one profession | SSTB in/out list with the statutory engineer/architect exclusion; examples rotate across fields |
 
 ---
 
@@ -312,7 +326,9 @@ These figures change annually. Refresh in this order each year:
 | **Late October** | IRS inflation adjustments (brackets, deduction, estate) | IRS Rev. Proc. |
 | **Early November** | Retirement plan limits | IRS Notice |
 | **Mid-November** | Medicare premiums and IRMAA | CMS fact sheet |
+| **Late October** | §179 limits, EBL threshold, AMT exemption, QBI thresholds | Same IRS Rev. Proc. as the brackets |
 | **Annually** | Uniform Lifetime Table | Rarely changes — last updated 2022 |
+| **Never** | Frozen thresholds — NIIT, SS benefit taxation, Additional Medicare, $25,000 rental allowance, $3,000 capital loss | Not indexed by statute. Do **not** inflate them |
 
 ### Watch list
 
@@ -322,3 +338,7 @@ These figures change annually. Refresh in this order each year:
 | Social Security trust fund depletion (~2033–2035) | Possible benefit reduction; consider a scenario toggle |
 | Frozen thresholds (NIIT, SS taxation, Additional Medicare) | Will capture more clients every year — this is correct behaviour, not a bug |
 | OBBBA provisions with sunset dates | Check each against P.L. 119-21 before extending |
+| **§461(l) threshold moved DOWN in 2026** | $626,000 → $512,000 MFJ. OBBBA reset the indexing base. Verify direction each year, do not assume it rises |
+| **AMT phaseout rate doubled to 50% in 2026** | Thresholds also reverted to $500k / $1M. Any model on 2025 AMT parameters understates AMT |
+| Bonus depreciation permanence | 100% is permanent under OBBBA for property placed in service after 19 Jan 2025, but the placed-in-service date still governs older acquisitions |
+| Cost segregation → recapture | Accelerated depreciation lowers basis and raises the 25% §1250 recapture on sale. Track `accumulatedDepreciation` for the life of the property |
