@@ -148,6 +148,41 @@ IF age ≥ retirementAge:
 
 Default `retirementExpenseFactor = 0.85`. Work-related costs disappear; healthcare is already tracked separately and does not get this haircut.
 
+### When the household changes
+
+Retirement is not one steady state. Three events reshape both income and expenses.
+
+**A spouse dies:**
+
+```
+income:    socialSecurity → MAX(ownBenefit, spouseBenefit)   ← smaller benefit LOST
+           pensions may drop to a survivor percentage (often 50% or 75%, or zero)
+expenses:  generalExpense × survivorExpenseFactor            ← typically 0.70–0.80
+           healthcare → ONE person's Medicare, not two
+           filingStatus → Single (module 02)
+```
+
+> **Expenses do not halve.** A survivor keeps the same house, the same property tax and the same insurance. Research supports roughly **70–80%** of the couple's spending, not 50%. Halving it is the most common modelling error here.
+
+**Long-term care begins:**
+
+```
+expenses:  + careCost                    ← $75,000–$150,000+/yr depending on level and state
+           − someGeneralExpense          ← if moving into a facility
+income:    unchanged, but withdrawals rise sharply to fund it
+tax:       large medical deduction above 7.5% of AGI (module 02)
+```
+
+> A care year is often the **lowest-tax year of a client's life** — huge deductible expense against ordinary income. It is the best Roth conversion window that exists, and it arrives unplanned.
+
+**A one-time windfall — business sale or inheritance:**
+
+```
+income:    + saleProceeds or inheritance in ONE year
+tax:       capital gain, possible NIIT, possible AMT
+Medicare:  IRMAA spikes TWO YEARS LATER and cannot be appealed
+```
+
 ### The "retirement smile" (optional refinement)
 
 Real retiree spending is not flat. It follows a U-shape:
@@ -171,6 +206,10 @@ Implement this only if the client wants that fidelity. The flat 0.85 factor is d
 | Let `portfolioWithdrawal` go negative | Floor it at zero with `MAX(0, …)` |
 | Apply the retirement expense factor to healthcare | Apply it to general expenses only |
 | Deflate expenses here | Deflate once, at Step 13 |
+| Halve expenses when a spouse dies | Use 70–80% — the house and its costs remain |
+| Keep both Social Security benefits after a death | The survivor keeps only the higher one |
+| Ignore long-term care as a spending phase | Model it; it is also the largest deduction the client will ever have |
+| Treat retirement as one steady state | Death, care and windfalls all reshape it |
 
 ---
 
@@ -181,3 +220,5 @@ Implement this only if the client wants that fidelity. The flat 0.85 factor is d
 | Replacement ratio 70–80% | [Social Security Administration — replacement rates](https://www.ssa.gov/policy/docs/ssb/v70n1/v70n1p1.html) | `SSA replacement rate retirement income policy` |
 | Healthcare cost inflation exceeds CPI | [CMS National Health Expenditure Projections](https://www.cms.gov/data-research/statistics-trends-and-reports/national-health-expenditure-data/projected) | `CMS National Health Expenditure Projections` |
 | Retirement spending smile | [BLS Consumer Expenditure Survey, by age](https://www.bls.gov/cex/tables.htm) | `BLS Consumer Expenditure Survey age of reference person` |
+| Survivor household spending ~70–80% | [BLS CE Survey, single vs married consumer units](https://www.bls.gov/cex/tables.htm) | `BLS consumer expenditure single person versus married couple` |
+| Long-term care cost benchmarks | [Genworth Cost of Care Survey](https://www.genworth.com/aging-and-you/finances/cost-of-care) | `Genworth cost of care survey nursing home annual` |

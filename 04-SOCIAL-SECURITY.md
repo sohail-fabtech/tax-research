@@ -229,6 +229,60 @@ $34,000 of the $40,000 benefit is taxable — the 85% cap binds.
 
 ---
 
+## PART C — WHEN THE HOUSEHOLD CHANGES
+
+### Death of a spouse — the survivor gets the higher benefit, not both
+
+```
+survivorBenefit = MAX(ownBenefit, deceasedSpouseBenefit)
+householdBenefit = survivorBenefit          ← the smaller benefit is LOST
+```
+
+> This is the single most misunderstood rule in retirement planning. A couple receiving $42,758 and $28,000 does **not** leave the survivor with $70,758. It leaves them with **$42,758**. The household loses $28,000 a year, permanently.
+
+**Survivor FRA is not the same as retirement FRA:**
+
+| Born | Survivor FRA |
+|---|---|
+| 1957 | 66 and 2 months |
+| 1958 | 66 and 4 months |
+| 1959 | 66 and 6 months |
+| 1962 and later | 67 |
+
+```
+claim at 60         → 71.5% of the deceased's benefit
+claim at survivor FRA → 100%
+```
+
+**The switching strategy — two separate entitlements:**
+
+```
+Survivor benefit and the survivor's OWN retirement benefit are separate.
+They may claim one early and switch to the other later.
+
+Typical: claim the SURVIVOR benefit at 60, let their OWN benefit grow
+         with delayed credits, then switch at 70.
+Or the reverse, if their own benefit is the smaller one.
+```
+
+> The model must test **both orders** and take the higher lifetime total. Assuming a single claim date understates the benefit for most widows and widowers.
+
+### Divorce — the ex-spouse benefit
+
+```
+QUALIFIES IF ALL OF:
+    the marriage lasted at least 10 years
+    the claimant is currently unmarried
+    the claimant is age 62 or older
+```
+
+```
+exSpouseBenefit does NOT reduce the worker's own benefit
+   nor the benefit of the worker's current spouse
+```
+
+> A worker can have an ex-spouse **and** a current spouse both drawing on their record with no reduction to anyone. Remarriage by the **claimant** ends their ex-spouse benefit — but remarriage after age 60 does **not** end a **survivor** benefit.
+
 ## The planning window this creates
 
 Between retirement and the RMD age (73 or 75), a client may have very low provisional income. This is the window where Roth conversions cost the least. Once RMDs begin, they inflate provisional income, push the benefit to 85% taxable, and can trip IRMAA at the same time. **The model must show these three effects landing together** — that compound is the entire argument for pre-RMD planning.
@@ -247,6 +301,10 @@ Between retirement and the RMD age (73 or 75), a client may have very low provis
 | Use the claim year's bend points | Use the year the worker turns **62** |
 | Assume 35 years of earnings exist | Fill missing years with zero |
 | Apply COLA before the claiming adjustment | Adjust for claiming first, then COLA |
+| Add both benefits together after a death | The survivor keeps only the **higher** of the two |
+| Use retirement FRA for a survivor claim | Survivor FRA differs — see the table above |
+| Assume one claim date for a widow(er) | Test survivor-first and own-first; take the higher lifetime total |
+| End a survivor benefit on remarriage after 60 | Remarriage at 60+ does **not** end a survivor benefit |
 
 ---
 
@@ -260,3 +318,5 @@ Between retirement and the RMD age (73 or 75), a client may have very low provis
 | Early / delayed adjustment rates | [SSA — Early or Late Retirement](https://www.ssa.gov/oact/quickcalc/early_late.html) · [20 CFR 404.313](https://www.ssa.gov/OP_Home/cfr20/404/404-0313.htm) | `SSA early or late retirement reduction factors` |
 | Taxation of benefits | [IRS Publication 915](https://www.irs.gov/forms-pubs/about-publication-915) · [CRS RL32552](https://www.congress.gov/crs-product/RL32552) | `IRS Publication 915 Social Security benefits taxable` |
 | Thresholds never indexed | [CRS IF11397](https://www.congress.gov/crs-product/IF11397) | `CRS Social Security Benefit Taxation Highlights` |
+| Survivor benefits, survivor FRA | [SSA — Survivor benefit amounts](https://www.ssa.gov/survivor/amount) · [Survivor FRA](https://www.ssa.gov/survivor/full-retirement-age-survivor) | `SSA survivor benefit full retirement age` |
+| Divorced-spouse benefit, 10-year rule | [SSA — prior marriage](https://www.ssa.gov/help/iClaim_marriagePrior.html) · [20 CFR 404.331](https://www.ssa.gov/OP_Home/cfr20/404/404-0331.htm) | `SSA divorced spouse benefit 10 year marriage` |

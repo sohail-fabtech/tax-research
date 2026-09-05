@@ -111,6 +111,28 @@ The "Google this" column is the literal phrase that surfaces the source, so noth
 
 **Full mechanics:** [11-LOSS-LIMITATIONS-AND-CARRYFORWARDS.md](11-LOSS-LIMITATIONS-AND-CARRYFORWARDS.md)
 
+### Life events (folded into modules 01, 02, 04, 05, 08)
+
+| Constant / rule | Value | Source | Google this |
+|---|---|---|---|
+| Qualifying surviving spouse | 2 years, **only with a dependent child** | IRC §2(a) · IRS Pub 501 | `IRS Publication 501 qualifying surviving spouse` |
+| Survivor Social Security | **higher of the two, not both** | SSA | `SSA survivor benefit higher of two` |
+| Survivor claim at 60 | **71.5%** of the deceased's benefit | SSA | `SSA survivor benefit age 60 71.5 percent` |
+| Survivor FRA | 66+2mo (1957) → **67** (1962+) — differs from retirement FRA | SSA | `SSA survivor full retirement age chart` |
+| Survivor switching | survivor and own benefit are **separate entitlements** | SSA | `SSA survivor benefit switch to own at 70` |
+| Divorced-spouse benefit | **10-year** marriage, unmarried, 62+; **no reduction** to the worker | 20 CFR §404.331 | `SSA divorced spouse benefit 10 year marriage` |
+| Remarriage after 60 | does **not** end a survivor benefit | SSA | `remarriage after 60 survivor benefit` |
+| Surviving spouse IRA | rollover · remain beneficiary · **SECURE 2.0 §327 election** | SECURE 2.0 §327 | `SECURE 2.0 section 327 surviving spouse election` |
+| IRMAA appeal | Form **SSA-44**, **8 closed** life-changing events | 20 CFR §418.1205 | `SSA-44 life changing event IRMAA appeal` |
+| Medical expense floor | **7.5%** of AGI | IRC §213 | `medical expense deduction 7.5 percent AGI` |
+| **2026 LTC premium caps** | $500 / $930 / $1,860 / $4,960 / **$6,200** (71+) | Rev. Proc. 2025-32 | `2026 long term care insurance premium deduction limits` |
+| Self-employed LTC | 100% above the line, no floor | IRC §162(l) | `self employed long term care premium deduction 162(l)` |
+| Late portability relief | **5 years** after death | Rev. Proc. 2022-32 | `Rev Proc 2022-32 late portability five years` |
+| Community property step-up | **100%** vs 50% in common law | IRC §1014(b)(6) | `IRC 1014(b)(6) community property double step up` |
+| QSBS §1202 | **$15M** cap; 50/75/100% at 3/4/5 years | OBBBA · IRC §1202 | `OBBBA section 1202 QSBS 15 million tiered exclusion` |
+
+> **A correction to a widely repeated claim.** Several sources state that a §1202 QSBS exclusion "does not reduce MAGI for IRMAA purposes." **That is wrong.** §1202 is an **exclusion from gross income** — excluded gain never enters AGI, and IRMAA MAGI is AGI plus tax-exempt interest, which QSBS gain is not. Qualifying QSBS gain therefore **does not** raise IRMAA. Non-qualifying gain from the same sale still does.
+
 ### Estate
 
 | Constant | Value | Source | Google this |
@@ -335,6 +357,8 @@ These figures change annually. Refresh in this order each year:
 | Item | Risk |
 |---|---|
 | **Senior bonus deduction expires after 2028** | Must switch off in 2029 |
+| **The widow's penalty is unavoidable, not optional** | On a death, filing status, brackets, standard deduction, SS taxation thresholds and IRMAA tiers all roughly halve at once. Income falls, tax rises |
+| SSA-44 list is closed | A one-time income spike is **not** appealable — plan the timing before the event |
 | Social Security trust fund depletion (~2033–2035) | Possible benefit reduction; consider a scenario toggle |
 | Frozen thresholds (NIIT, SS taxation, Additional Medicare) | Will capture more clients every year — this is correct behaviour, not a bug |
 | OBBBA provisions with sunset dates | Check each against P.L. 119-21 before extending |

@@ -4,7 +4,7 @@
 
 Tax year **2026** · Market **United States** · Verified **September 2026**
 
-> **Looking to explain this to a client, or see worked examples and risks?** Read [HANDBOOK.md](HANDBOOK.md) instead — same 21 steps, with two contrasting examples and a risk table for each. This file is the lean build reference.
+> **Looking to explain this to a client, or see worked examples and risks?** Read [HANDBOOK.md](HANDBOOK.md) instead — same 22 steps, with two contrasting examples and a risk table for each. This file is the lean build reference.
 
 > **How to read this file.** Each step has three parts: a plain-English explanation anyone can follow, the exact formula for whoever builds it, and a link to the detailed module for constants and edge cases. The formulas here are copied word-for-word from modules 00–08 — nothing is simplified or reworded. (The one exception is the Step 8 cash-flow identity, which the modules name but never write out; it is flagged as new in the sources table.)
 
@@ -57,6 +57,8 @@ It does not stack on top. Maximum 401(k) at age 62 is **$35,750**, not $43,750 �
 ```
 FOR each year n, age a:
 
+  STEP 0   Check for life events            → 01/02/04/05/08
+           (death of spouse, long-term care, divorce, windfall)
   STEP 1   Grow income                     → 01
   STEP 2   Grow expenses                   → 01
   STEP 3   Compute retirement contributions → 03
@@ -110,6 +112,35 @@ FOR each year n, age a:
                        ▼
               NET WORTH → ESTATE VALUE (08)
 ```
+
+---
+
+# STEP 0 — Life events
+
+**In plain English.** Before computing the year, check whether the household changed. A death, a divorce, the start of long-term care or a one-off windfall resets parameters for every year that follows.
+
+```
+IF spouseDied(year):
+    socialSecurity → MAX(ownBenefit, spouseBenefit)   ← smaller benefit LOST
+    filingStatus   → Single (QSS for 2 yrs ONLY with a dependent child)
+    expenses       → 70–80% of the couple's spending
+    retirementAccounts → spousal rollover, remain beneficiary, or §327 election
+    estate         → Form 706 to preserve the DSUE (5-year late relief)
+
+IF longTermCareBegins(year):
+    expenses   → + care cost
+    deductions → medical above 7.5% of AGI
+
+IF oneTimeWindfall(year):
+    Medicare   → IRMAA spikes TWO YEARS LATER, and is NOT appealable
+
+IF divorced(year):
+    filingStatus → Single ; accounts split by QDRO ; ex-spouse SS if 10+ yr marriage
+```
+
+> **The widow's penalty.** Filing status, bracket widths, the standard deduction, the Social Security taxation thresholds and the IRMAA tier all roughly **halve** at once. On a worked case, gross income fell **19%** while federal tax **rose $3,869** and after-tax income fell **23%**.
+
+**Full detail →** [02-TAXES.md](02-TAXES.md) §9b · [04-SOCIAL-SECURITY.md](04-SOCIAL-SECURITY.md) Part C · [05-RMD.md](05-RMD.md) §5b · [08-ESTATE-VALUE.md](08-ESTATE-VALUE.md) §6b
 
 ---
 
@@ -1035,6 +1066,16 @@ The dozen figures used most. Full tables are in the modules.
 # Sources — which formula came from where
 
 Every formula in this guide, and its origin. **Law** means the number or method is fixed by statute or regulation. **Math** means it is a standard identity, not a legal rule. **Convention** means it is a modelling choice we made — defensible, but changeable.
+
+### Step 0 · Life events
+
+| Formula | Type | Source | Google this |
+|---|---|---|---|
+| Survivor keeps the higher benefit | **Law** | SSA | `SSA survivor benefit higher of two` |
+| QSS needs a dependent child | **Law** | IRC §2(a) · IRS Pub 501 | `IRS Publication 501 qualifying surviving spouse` |
+| §327 spousal election | **Law** | SECURE 2.0 §327 | `SECURE 2.0 section 327 surviving spouse election` |
+| Late portability, 5 years | **Law** | Rev. Proc. 2022-32 | `Rev Proc 2022-32 late portability` |
+| Survivor expense factor 70–80% | Convention | BLS Consumer Expenditure Survey | `BLS consumer expenditure single versus married` |
 
 ### Step 1–2 · Income and expenses
 

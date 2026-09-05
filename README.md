@@ -14,7 +14,7 @@ Every constant in these documents was taken from the primary US government sourc
 
 **→ [HANDBOOK.md](HANDBOOK.md) — to explain or present the system.**
 
-All 21 steps in calculation order, each with a plain-English description, the real formula, **two contrasting examples**, and a risk table. Includes the calculation-order diagram, the top 10 mistakes ranked by money at stake, a risk register and a client glossary. Readable by a client and a developer at the same time.
+All 22 steps in calculation order, each with a plain-English description, the real formula, **two contrasting examples**, and a risk table. Includes the calculation-order diagram, the top 10 mistakes ranked by money at stake, a risk register and a client glossary. Readable by a client and a developer at the same time.
 
 **→ [MASTER-GUIDE.md](MASTER-GUIDE.md) — to build the system.**
 

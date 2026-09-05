@@ -157,6 +157,30 @@ For a charitably inclined client this is the single most efficient RMD strategy 
 
 ---
 
+## 5b. When the account owner dies — the surviving spouse's choices
+
+A surviving spouse has options no other beneficiary has. The choice changes the RMD for the rest of their life.
+
+| Option | RMD basis | Early-withdrawal penalty under 59½ |
+|---|---|---|
+| **Spousal rollover** — treat it as their own | Their **own** age, Uniform Lifetime Table | **10% applies** |
+| **Remain a beneficiary** (inherited IRA) | Deceased's schedule, single life table | **No penalty** |
+| **SECURE 2.0 §327 election** (from 2024) | Treated as the **deceased employee** — RMDs start when the deceased *would have* reached RMD age, using the Uniform Lifetime Table | **No penalty** |
+
+```
+IF survivingSpouse is sole beneficiary:
+    IF survivor is under 59½ and needs the money:
+        → stay a beneficiary, or make the §327 election  (no 10% penalty)
+    ELSE IF deceased was YOUNGER than the survivor:
+        → §327 election delays RMDs until the deceased would have hit 73/75
+    ELSE:
+        → spousal rollover is usually simplest
+```
+
+> **The §327 election is new and widely missed.** Where the deceased spouse was the younger of the two, it can postpone RMDs by years — and the resulting empty brackets are exactly the Roth conversion window described above.
+
+> **Non-spouse beneficiaries** get none of this. Most must empty the account within **10 years**, often during their own peak earning years.
+
 ## 6. Penalty
 
 | Situation | Excise tax |
@@ -200,6 +224,8 @@ taxableBalance = taxableBalance + surplus
 | Let the pre-tax balance grow forever | RMD % exceeds returns after ~age 85 |
 | Subject the RMD to NIIT | Excluded from NII, but included in MAGI |
 | Aggregate 401(k) RMDs across plans | Each 401(k) pays its own |
+| Roll over automatically on a spouse's death | Test all three options — rollover, beneficiary, §327 election |
+| Apply the 10% penalty to an inherited IRA | It does not apply while the survivor remains a beneficiary |
 
 ---
 
@@ -210,3 +236,4 @@ taxableBalance = taxableBalance + surplus
 | Uniform Lifetime Table, RBD, worked examples | [IRS Publication 590-B](https://www.irs.gov/publications/p590b) ([PDF](https://www.irs.gov/pub/irs-pdf/p590b.pdf)) | `IRS Publication 590-B Appendix B Table III Uniform Lifetime` |
 | RMD ages, penalty | [IRS — Retirement topics: RMDs](https://www.irs.gov/retirement-plans/plan-participant-employee/retirement-topics-required-minimum-distributions-rmds) | `IRS retirement topics required minimum distributions` |
 | SECURE 2.0 age changes | [IRS — RMD FAQs](https://www.irs.gov/retirement-plans/retirement-plan-and-ira-required-minimum-distributions-faqs) | `IRS required minimum distribution FAQs SECURE 2.0 age 73 75` |
+| Surviving spouse §327 election | SECURE 2.0 Act §327 · IRS 2024 final regulations | `SECURE 2.0 section 327 surviving spouse election` |

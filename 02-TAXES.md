@@ -288,6 +288,104 @@ irmaaAnnual = (partB(magi_from_2_years_ago) + partD(...)) × 12 × numberOfPeopl
 
 ---
 
+## 9b. When filing status changes — the widow's penalty
+
+**The most consequential mid-projection event.** Nothing else in the tax code changes this many parameters at once.
+
+### The transition
+
+```
+Year of death           → MARRIED FILING JOINTLY (full year, regardless of date of death)
+Next 2 years            → QUALIFYING SURVIVING SPOUSE — but ONLY with a dependent child
+No dependent child      → SINGLE, immediately from the following year
+```
+
+> **Most retirees have no dependent child**, so the realistic path is **MFJ → Single in one step**. Modelling a two-year QSS grace period for a 78-year-old widow is simply wrong.
+
+### What changes at once
+
+| Parameter | Married filing jointly | Single | Effect |
+|---|---|---|---|
+| Standard deduction | $32,200 | **$16,100** | halved |
+| Age-65 addition | $3,300 (both) | **$2,050** | reduced |
+| Every bracket width | full | **half** | same income, higher bracket |
+| SS taxation thresholds | $32,000 / $44,000 | **$25,000 / $34,000** | more benefit taxed |
+| **IRMAA tier 1** | $218,000 | **$109,000** | halved |
+| NIIT threshold | $250,000 | **$200,000** | lower |
+
+### Worked example — income falls, tax rises
+
+A couple aged 78, both 65+, with $70,758 of Social Security ($42,758 + $28,000) and an $80,000 RMD.
+
+| | Both alive (MFJ) | Survivor (Single) |
+|---|---|---|
+| Social Security | $70,758 | **$42,758** — smaller benefit lost |
+| RMD | $80,000 | $80,000 — unchanged |
+| **Gross income** | **$150,758** | **$122,758** |
+| Taxable Social Security | $60,144 | $36,344 |
+| AGI | $140,144 | $116,344 |
+| Deduction | $35,500 | **$18,150** |
+| Taxable income | $104,644 | $98,194 |
+| **Federal tax** | **$12,446** | **$16,315** |
+| Effective rate | 8.3% | **13.3%** |
+| Medicare | standard, two people — $4,870 | **IRMAA tier 2** — $3,583 for one |
+| **After-tax income** | **$133,443** | **$102,860** |
+
+**Gross income fell 19%. Federal tax rose $3,869. After-tax income fell 23%.**
+
+> The survivor is **poorer and taxed harder at the same time**. AGI of $116,344 clears the single IRMAA threshold of $109,000, so Medicare surcharges start as well. Three effects from one event.
+
+### What this implies for planning
+
+The widow's penalty is **predictable**, which makes it plannable. Roth conversions during the years when the couple is still MFJ are cheaper than the same conversions the survivor would face later at single rates. The pre-RMD window and the both-alive window overlap — and the model should surface that.
+
+## 9c. The IRMAA appeal — Form SSA-44
+
+IRMAA uses income from **two years ago**. When income drops because of a life event, the client does not have to wait two years for Medicare to notice.
+
+```
+File Form SSA-44 to use CURRENT income instead of the 2-year-old return
+```
+
+**Eight qualifying life-changing events — the list is closed:**
+
+| | Event |
+|---|---|
+| 1 | Marriage |
+| 2 | Divorce or annulment |
+| 3 | **Death of a spouse** |
+| 4 | Work stoppage (retirement) |
+| 5 | Work reduction |
+| 6 | Loss of income-producing property |
+| 7 | Loss of pension income |
+| 8 | Employer settlement payment |
+
+> **A one-time income spike is not on the list.** Selling a business or converting a large Roth raises IRMAA two years later and **cannot be appealed** — the appeal exists for income that *fell*, not income that spiked once. The only defence is planning the timing before the event.
+
+> **Retirement itself is event 4.** A client retiring at 65 is billed on their working income from 63. Filing SSA-44 in the first Medicare year is routine and frequently missed.
+
+## 9d. Medical and long-term care costs
+
+```
+deductibleMedical = MAX(0, totalMedicalExpenses − 0.075 × AGI)
+```
+
+Only the amount above **7.5% of AGI** is deductible, and only if itemising.
+
+**Qualified long-term care insurance premiums count as medical expenses, capped by age (2026):**
+
+| Age at year end | Deductible premium cap |
+|---|---|
+| 40 or under | $500 |
+| 41–50 | $930 |
+| 51–60 | $1,860 |
+| 61–70 | $4,960 |
+| **71 and over** | **$6,200** |
+
+> **Actual long-term care costs are fully deductible medical expenses** — not subject to the premium caps above, which apply only to *insurance premiums*. A year in a nursing home can produce a very large deduction, which in turn creates a rare opportunity: a Roth conversion in the same year can be nearly tax-free.
+
+> **The self-employed exception:** under §162(l) a self-employed client deducts 100% of qualified LTC premiums above the line — no 7.5% floor, no itemising.
+
 ## 10. State income tax
 
 Three shapes. Pick per state.
@@ -318,6 +416,10 @@ California (the worksheet in this folder uses 8.84% corporate) has graduated ind
 | Treat LTCG as a separate parallel calculation | Stack gains on top of ordinary income |
 | Subject the RMD to NIIT | Exclude it from NII, but include it in MAGI |
 | Use current-year MAGI for IRMAA | Use MAGI from two years earlier |
+| Keep filing status MFJ after a spouse dies | MFJ in the year of death, then Single unless a dependent child qualifies them for QSS |
+| Grant a 2-year QSS grace period to everyone | QSS requires a **dependent child** — most retirees go straight to Single |
+| Assume a one-time income spike can be appealed | The SSA-44 list is closed; spikes are not on it |
+| Apply the LTC premium caps to actual care costs | The caps apply to **premiums** only; care costs are fully deductible medical |
 
 ---
 
@@ -330,3 +432,7 @@ California (the worksheet in this folder uses 8.84% corporate) has graduated ind
 | 2026 Medicare premiums and IRMAA | [CMS fact sheet](https://www.cms.gov/newsroom/fact-sheets/2026-medicare-parts-b-premiums-deductibles) | `CMS 2026 Medicare Parts A B premiums deductibles` |
 | SS wage base $184,500 | [Federal Register 2025-19763](https://www.federalregister.gov/documents/2025/11/03/2025-19763/cost-of-living-increase-and-other-determinations-for-2026) | `OASDI contribution and benefit base 2026 Federal Register` |
 | §199A permanence, $400 minimum | OBBBA §70105 (P.L. 119-21) | `OBBBA section 70105 QBI deduction permanent minimum` |
+| Qualifying surviving spouse status | IRC §2(a) · [IRS Pub 501](https://www.irs.gov/publications/p501) | `IRS Publication 501 qualifying surviving spouse` |
+| IRMAA appeal, 8 life-changing events | [20 CFR §418.1205](https://www.ecfr.gov/current/title-20/section-418.1205) · Form SSA-44 | `SSA-44 life changing event IRMAA appeal` |
+| Medical expense 7.5% floor | IRC §213 | `IRS medical expense deduction 7.5 percent AGI` |
+| 2026 LTC premium caps | Rev. Proc. 2025-32 · IRC §213(d)(10) | `2026 long term care insurance premium deduction limits` |

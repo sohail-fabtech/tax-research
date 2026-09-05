@@ -191,6 +191,42 @@ Headline net worth is $12,000,000. The real legacy is **$10,600,000**. The $1.4M
 
 ---
 
+## 6b. The first death — what must happen, and when
+
+Most planning attention goes to the second death. The **first** death is where the irreversible decisions are made.
+
+### Portability has a deadline
+
+```
+DSUE requires Form 706 to be FILED — it is never automatic
+Standard deadline:  9 months after death (+6 month extension)
+Late relief:        up to 5 YEARS after death, under Rev. Proc. 2022-32
+                    print at the top of the return:
+                    "FILED PURSUANT TO REV. PROC. 2022-32 TO ELECT
+                     PORTABILITY UNDER § 2010(c)(5)(A)"
+```
+
+> A $15,000,000 exclusion is lost permanently if nobody files. Estates well below the filing threshold still **should** file, precisely because no tax is due and the exclusion is worth carrying forward.
+
+### The step-up at the first death depends on the state
+
+```
+COMMUNITY PROPERTY state:  BOTH halves step up          → 100%
+COMMON LAW state:          only the decedent's half     → 50%
+```
+
+**Community property states:** Arizona, California, Idaho, Louisiana, Nevada, New Mexico, Texas, Washington, Wisconsin (plus elective regimes in Alaska, Tennessee, South Dakota, Florida and Kentucky).
+
+**Worked contrast** — a $2,000,000 jointly held asset with a $1,000,000 basis, first spouse dies:
+
+| | Community property | Common law |
+|---|---|---|
+| Step-up | **100%** — full $2,000,000 | **50%** — $1,500,000 |
+| Built-in gain remaining | **$0** | **$500,000** |
+| Tax if sold at 23.8% | **$0** | **$119,000** |
+
+> Same asset, same death, **$119,000 apart** — decided by which state the couple lived in. A client moving from California to a common law state loses this treatment unless the community property character is preserved.
+
 ## 7. State estate and inheritance taxes
 
 Federal is not the whole story. Roughly **17 states plus DC impose some form of death tax** — around a dozen levy a state **estate** tax, five (NJ, PA, NE, KY, MD) levy an **inheritance** tax on the recipient, and Maryland has both.
@@ -219,7 +255,9 @@ State exclusions change frequently and several are **not** inflation-indexed. Ve
 | Step up a traditional IRA | IRD assets never step up |
 | Include ILIT-owned insurance in the estate | Excluded under §2042 — if truly no incidents of ownership |
 | Assume the exclusion drops to ~$7M in 2026 | OBBBA made **$15M** permanent |
-| Assume portability is automatic | Requires a timely Form 706 |
+| Assume portability is automatic | Requires a filed Form 706 — up to 5 years late under Rev. Proc. 2022-32 |
+| Skip Form 706 because no tax is due | That is exactly when it should be filed, to preserve the DSUE |
+| Apply a 50% step-up in a community property state | Community property gets **100%** on the first death |
 | Ignore the §2035 three-year rule | A transferred policy is pulled back for 3 years |
 | Apply depreciation recapture to property held to death | §1014 wipes it out |
 | Model only federal estate tax | ~17 states + DC have a death tax; Oregon starts at $1M |
@@ -238,3 +276,5 @@ State exclusions change frequently and several are **not** inflation-indexed. Ve
 | §2035 three-year rule | [26 U.S.C. §2035](https://www.law.cornell.edu/uscode/text/26/2035) | `IRC 2035 three year rule life insurance transfer` |
 | Portability / DSUE | [IRS — Form 706 instructions](https://www.irs.gov/instructions/i706) | `Form 706 portability DSUE election instructions` |
 | State estate / inheritance taxes | [Tax Foundation — estate and inheritance taxes by state](https://taxfoundation.org/data/all/state/estate-inheritance-taxes/) | `states with estate tax inheritance tax 2026 exemption` |
+| Late portability relief, 5 years | [Rev. Proc. 2022-32](https://www.irs.gov/pub/irs-drop/rp-22-32.pdf) | `Rev Proc 2022-32 late portability election five years` |
+| Community property 100% step-up | IRC §1014(b)(6) | `IRC 1014(b)(6) community property double step up basis` |

@@ -31,7 +31,7 @@ The two examples always **contrast**. That is deliberate: the boundary between t
 
 ## The calculation order
 
-Twenty-one steps, run in this exact sequence, once per year, for 48 years.
+Twenty-two steps, run in this exact sequence, once per year, for 48 years.
 **The order is part of the maths.** Swap any two and the answer changes.
 
 ```
@@ -41,6 +41,11 @@ Twenty-one steps, run in this exact sequence, once per year, for 48 years.
                     │  losses, NOL, credits       │
                     └──────────────┬──────────────┘
                                    │
+   ── HAS ANYTHING CHANGED? ───────▼──────────────────────────────
+    0  LIFE EVENTS   death of a spouse · long-term care ·
+       │             divorce · one-time windfall
+       │             → resets filing status, Social Security, expenses
+       │
    ── EARN AND SPEND ──────────────▼──────────────────────────────
     1  INCOME  ──────────────►  2  EXPENSES
        │
@@ -114,6 +119,7 @@ Steps 11, 13 and 14 are **three separate calculations on the same year**, each w
 
 | # | Step | What it answers | Biggest risk |
 |---|---|---|---|
+| 0 | Life events | Is this the same household as last year? | Assumed unchanged for 48 years |
 | 1 | Income | What comes in? | Earned income doesn't stop at retirement |
 | 2 | Expenses | What goes out? | Healthcare inflated at the general rate |
 | 3 | Contributions | What can we save? | Age 60–63 catch-up stacked instead of replacing |
@@ -135,6 +141,80 @@ Steps 11, 13 and 14 are **three separate calculations on the same year**, each w
 | 18 | Real estate equity | How much equity? | Straight-line principal instead of amortisation |
 | 19 | Estate | What reaches the heirs? | Net worth reported as legacy |
 | 20 | Deflate | What is it really worth? | Inflation counted twice, or not at all |
+
+---
+
+# STEP 0 — Has anything changed this year?
+
+**What it does.** Before working out a single number, check whether the household is still the same one it was last year.
+
+**Why it matters.** The plan runs 48 years. Over that long, things happen — a spouse dies, someone needs care, a business sells. Each one changes the rules for every year that follows. Miss it and the rest of the projection is about a family that no longer exists.
+
+### The formula
+
+```
+IF spouseDied(year):
+    socialSecurity → MAX(ownBenefit, spouseBenefit)   ← smaller benefit LOST
+    filingStatus   → Single (or QSS for 2 yrs IF a dependent child)
+    expenses       → 70–80% of the couple's spending
+    retirementAccounts → spousal rollover, or the §327 election
+    estate         → file Form 706 to keep the unused exclusion
+
+IF longTermCareBegins(year):
+    expenses       → + $75,000 to $150,000+
+    deductions     → large medical deduction above 7.5% of AGI
+
+IF oneTimeWindfall(year):
+    tax            → capital gain, maybe NIIT, maybe AMT
+    Medicare       → IRMAA spikes TWO YEARS LATER
+
+IF divorced(year):
+    filingStatus   → Single
+    accounts       → split by QDRO, no penalty
+    socialSecurity → ex-spouse benefit if the marriage lasted 10+ years
+```
+
+### Example 1 — a normal year
+
+Nothing changed. The couple is the same couple. Carry every setting forward and go to Step 1.
+
+```
+No change → all parameters carry forward unchanged
+```
+
+### Example 2 — one spouse dies at 78
+
+Same house, same savings, same required withdrawal. Only the household changed.
+
+| | Both alive | Survivor alone |
+|---|---|---|
+| Social Security | $70,758 | **$42,758** — the smaller one is lost |
+| Required withdrawal | $80,000 | $80,000 — unchanged |
+| **Money coming in** | **$150,758** | **$122,758** |
+| Standard deduction | $35,500 | **$18,150** — halved |
+| **Federal tax** | **$12,446** | **$16,315** |
+| Medicare | standard rate | **surcharge tier** |
+| **Money to live on** | **$133,443** | **$102,860** |
+
+**The difference:** income fell **19%** — and tax went **up $3,869**. Money to live on fell **23%**.
+
+> **This is called the widow's penalty.** The survivor is poorer and taxed harder at the same time, because the single-filer brackets, the standard deduction and the Medicare surcharge threshold are all roughly **half** the married amounts. Their income halves; the tax rules halve faster.
+
+> **The good news: it is predictable.** Roth conversions done while both spouses are alive cost less than the same conversions the survivor would face later. The plan can act on this years in advance.
+
+### Risks and common mistakes
+
+| What goes wrong | Who it hurts | How to prevent it |
+|---|---|---|
+| Household assumed unchanged for 48 years | Client — the projection describes a family that no longer exists | Check for events at the start of every year |
+| Both Social Security benefits kept after a death | Client — overstates income for life | Survivor keeps the **higher** one only |
+| Filing status left as married | Client — understates tax badly | Single from the year after death, unless a dependent child |
+| Expenses halved for a survivor | Client — understates spending | 70–80%; the house and its costs remain |
+| Long-term care left out | Client — the largest expense and the largest deduction, both missed | Model it as a spending phase |
+| Form 706 skipped because no tax is due | Client — a $15,000,000 exclusion lost | File it; late relief runs 5 years |
+| Assuming a one-off income spike can be appealed | Client — two years of Medicare surcharges | Plan the timing before the sale |
+
+**Detail →** [01-INCOME-AND-EXPENSES.md](01-INCOME-AND-EXPENSES.md) · [02-TAXES.md](02-TAXES.md) · [04-SOCIAL-SECURITY.md](04-SOCIAL-SECURITY.md) · [05-RMD.md](05-RMD.md) · [08-ESTATE-VALUE.md](08-ESTATE-VALUE.md)
 
 ---
 
@@ -189,6 +269,8 @@ Portfolio must supply $544,925
 ```
 
 **The difference:** earned income fell from **$758,567 to $0 in a single year**, and the portfolio has to replace almost all of it — five years before Social Security starts and thirteen before the first RMD.
+
+> **And retirement is not one steady state.** The figures above describe year one. Over the next 30 years the same household may lose a spouse (Social Security drops to the higher benefit only, filing status becomes Single), need long-term care (spending rises sharply, but so do deductions), or receive a windfall (tax now, Medicare surcharge two years later). Each changes the income line for every year that follows — see **Step 0**.
 
 ### Risks and common mistakes
 
