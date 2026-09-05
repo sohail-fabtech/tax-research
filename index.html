@@ -26,8 +26,8 @@ code{font:12.5px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
   background:#eef2f8;padding:1px 5px;border-radius:4px}
 
 /* ---------- header ---------- */
-header{background:linear-gradient(100deg,#0d2946,#17436f 55%,#8a6410);color:#fff;padding:20px 22px}
-.hwrap{max-width:1280px;margin:0 auto;display:flex;gap:18px;align-items:center;flex-wrap:wrap}
+header{background:linear-gradient(100deg,#0d2946,#17436f 55%,#8a6410);color:#fff;padding:20px 26px}
+.hwrap{width:100%;padding:0 8px;display:flex;gap:18px;align-items:center;flex-wrap:wrap}
 .hwrap h1{color:#fff;margin:0}
 .tag{font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;opacity:.8}
 .hsub{opacity:.88;font-size:.85rem;margin:2px 0 0;max-width:64ch}
@@ -46,7 +46,7 @@ button:disabled{opacity:.42;cursor:not-allowed;transform:none;filter:none}
 
 /* ---------- progress ---------- */
 .prog{background:#fff;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:40}
-.pwrap{max-width:1280px;margin:0 auto;padding:9px 22px;display:flex;gap:5px;overflow-x:auto}
+.pwrap{width:100%;padding:9px 26px;display:flex;gap:5px;overflow-x:auto}
 .pstep{flex:0 0 auto;font-size:.74rem;padding:5px 10px;border-radius:20px;border:1px solid var(--line);
   background:#fff;color:var(--muted);white-space:nowrap;font-weight:550}
 .pstep.done{background:var(--ok-bg);border-color:#bfe3d3;color:var(--ok)}
@@ -54,35 +54,78 @@ button:disabled{opacity:.42;cursor:not-allowed;transform:none;filter:none}
 .pbar{height:3px;background:var(--line)} .pbar>i{display:block;height:100%;background:var(--gold);transition:width .3s}
 
 /* ---------- layout ---------- */
-main{max-width:1280px;margin:0 auto;padding:20px 22px 60px;display:grid;
-  grid-template-columns:minmax(0,1fr) 330px;gap:20px;align-items:start}
-@media(max-width:1000px){main{grid-template-columns:1fr}}
+main{width:100%;max-width:1760px;margin:0 auto;padding:22px 26px 70px;display:grid;
+  grid-template-columns:minmax(0,1fr) 360px;gap:22px;align-items:start}
+@media(max-width:1180px){main{grid-template-columns:1fr}}
+@media(min-width:1800px){main{grid-template-columns:minmax(0,1fr) 400px}}
+main>div{min-width:0}          /* let the wizard column shrink instead of overflowing */
+.hwrap,.pwrap{max-width:1760px;margin:0 auto}
 .card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--sh);padding:20px;margin-bottom:16px}
 .card>h2{display:flex;align-items:center;gap:9px}
 .mnum{background:var(--brand);color:#fff;font-size:.72rem;padding:2px 8px;border-radius:20px;font-weight:600}
-.lede{color:var(--muted);font-size:.88rem;margin:-2px 0 16px}
+.lede{color:var(--muted);font-size:.88rem;margin:-2px 0 18px;max-width:86ch;overflow-wrap:anywhere}
+.card>p,.card>h3+p{max-width:86ch}
+.note{max-width:100%;overflow-wrap:anywhere}
+.card{min-width:0;overflow-wrap:break-word}
+.card>h2{flex-wrap:wrap;row-gap:4px}
 
-/* ---------- fields ---------- */
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:13px}
-.f{display:flex;flex-direction:column;gap:4px;min-width:0}
+/* ---------- fields ----------
+   Each .f spans three grid rows and uses `subgrid`, so every label in a row shares
+   one row, every control shares the next and every hint the last.  Controls line up
+   even when one label wraps to two lines.  A min-height fallback covers old browsers. */
+.grid{display:grid;column-gap:18px;row-gap:16px;align-items:start;
+  grid-template-columns:repeat(1,minmax(0,1fr));grid-auto-rows:auto}
+@media(min-width:620px) {.grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(min-width:1080px){.grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(min-width:1640px){.grid{grid-template-columns:repeat(4,minmax(0,1fr))}}
+
+.f{display:grid;row-gap:5px;min-width:0;align-content:start;
+   grid-template-rows:auto auto auto}
+@supports(grid-template-rows:subgrid){
+  .grid{grid-auto-rows:auto}
+  .f{grid-row:span 3;grid-template-rows:subgrid}
+}
+@supports not (grid-template-rows:subgrid){
+  .f>label{min-height:2.5em;display:flex;align-items:flex-end}
+  .f>.hint,.f>.emsg{min-height:1.1em}
+}
 .f.wide{grid-column:1/-1}
-.f>label{font-size:.81rem;font-weight:560}
-.f .hint{font-size:.74rem;color:var(--muted)}
-input,select,textarea{font:inherit;padding:8px 10px;border:1px solid var(--line);border-radius:7px;
-  background:#fff;color:var(--ink);width:100%;min-width:0}
+.f.tall{grid-column:1/-1}
+@supports(grid-template-rows:subgrid){.f.tall{grid-row:span 3}}
+.f>label{font-size:.81rem;font-weight:560;line-height:1.3;overflow-wrap:anywhere;
+  align-self:end;margin:0}
+.f .hint{font-size:.74rem;color:var(--muted);line-height:1.35;overflow-wrap:anywhere;align-self:start}
+.f>.affix,.f>input,.f>select,.f>textarea{align-self:start}
+
+input,select,textarea{font:inherit;padding:9px 11px;border:1px solid var(--line);border-radius:7px;
+  background:#fff;color:var(--ink);width:100%;min-width:0;height:40px;line-height:1.2}
+select{appearance:none;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6'><path d='M0 0l5 6 5-6z' fill='%235b6b82'/></svg>");
+  background-repeat:no-repeat;background-position:right 11px center;padding-right:30px;
+  text-overflow:ellipsis}
 input:focus,select:focus,textarea:focus{outline:2px solid #b9d3ee;outline-offset:-1px;border-color:var(--brand2)}
-input[type=checkbox]{width:auto;margin:0}
-textarea{min-height:66px;resize:vertical}
-.chk{display:flex;align-items:flex-start;gap:8px;font-size:.85rem;padding:7px 0}
-.chk input{margin-top:3px}
-fieldset{border:1px solid var(--line);border-radius:9px;padding:14px;margin:0 0 14px}
-legend{font-size:.8rem;font-weight:620;padding:0 6px;color:var(--brand)}
+input[type=checkbox]{width:auto;height:auto;margin:0}
+input[type=date]{padding-right:8px}
+textarea{min-height:88px;height:auto;resize:vertical;line-height:1.5}
+
+/* checkbox field occupies the control row and keeps the grid rhythm */
+.f.chkf{grid-row:span 3}
+.chk{display:flex;align-items:flex-start;gap:9px;font-size:.85rem;
+  border:1px solid var(--line);border-radius:7px;padding:10px 11px;background:#fff;min-height:40px}
+.chk input{margin-top:2px;flex:0 0 auto}
+.chk span{overflow-wrap:anywhere}
+
+fieldset{border:1px solid var(--line);border-radius:9px;padding:16px;margin:18px 0 14px;min-width:0}
+legend{font-size:.8rem;font-weight:620;padding:0 7px;color:var(--brand)}
 
 /* ---------- repeatable ---------- */
 .rep{border:1px solid var(--line);border-radius:9px;padding:14px;margin-bottom:12px;background:#fbfcfe}
-.rep-hd{display:flex;align-items:center;gap:9px;margin-bottom:11px}
-.rep-hd strong{font-size:.87rem}
-.rep-hd button{margin-left:auto}
+.rep-hd{display:flex;align-items:center;gap:9px;margin-bottom:13px;flex-wrap:wrap;
+  padding-bottom:10px;border-bottom:1px solid var(--line)}
+.rep-hd strong{font-size:.87rem;flex:0 0 auto}
+.rep-hd small{color:var(--muted);overflow-wrap:anywhere;flex:1 1 200px;min-width:0}
+.rep-hd button{flex:0 0 auto}
+.rep-hd button[data-dup]{margin-left:auto}
+.rep{padding:16px;min-width:0}
 .empty{color:var(--muted);font-size:.85rem;padding:14px;text-align:center;border:1px dashed var(--line);border-radius:9px;margin-bottom:12px}
 
 /* ---------- notes ---------- */
@@ -93,9 +136,24 @@ legend{font-size:.8rem;font-weight:620;padding:0 6px;color:var(--brand)}
 .note.o{background:var(--ok-bg);border-color:var(--ok)}
 .note b{font-weight:640}
 
+/* ---------- static content: everything wraps, nothing overflows ---------- */
+.kpi,.mile,.tst,.note,.fnd,.rep,fieldset{min-width:0;overflow-wrap:anywhere}
+.kpi .v,.mile .v{font-variant-numeric:tabular-nums;overflow-wrap:normal}
+.miles{scrollbar-width:thin}
+.mile{flex:0 0 140px}
+.tabs{row-gap:2px}
+.tst{flex-wrap:wrap}
+.tst .n{flex:0 0 auto}
+footer p{max-width:100ch;overflow-wrap:anywhere}
+.hsub{overflow-wrap:anywhere}
+.hactions{flex-shrink:0}
+h1,h2,h3,h4{overflow-wrap:anywhere}
+
 /* ---------- findings ---------- */
-.side{position:sticky;top:60px}
-@media(max-width:1000px){.side{position:static}}
+.side{position:sticky;top:62px;min-width:0}
+.side>.card:first-child{max-height:calc(100vh - 150px);overflow-y:auto;scrollbar-width:thin}
+@media(max-width:1180px){.side{position:static}
+  .side>.card:first-child{max-height:none;overflow:visible}}
 .fnd{padding:9px 11px;border-radius:8px;font-size:.79rem;margin-bottom:7px;border-left:3px solid;line-height:1.45}
 .fnd.i{background:var(--info-bg);border-color:var(--info)}
 .fnd.w{background:var(--warn-bg);border-color:var(--warn)}
@@ -105,12 +163,18 @@ legend{font-size:.8rem;font-weight:620;padding:0 6px;color:var(--brand)}
 .fnd .src{font-size:.7rem;opacity:.7;margin-top:3px}
 
 /* ---------- nav ---------- */
-.nav{display:flex;gap:10px;align-items:center;margin-top:8px}
+.nav{display:flex;gap:10px;align-items:center;margin-top:8px;flex-wrap:wrap;row-gap:8px}
+.nav .sp{flex:1 1 auto;text-align:right}
 .nav .sp{margin-left:auto;font-size:.78rem;color:var(--muted)}
 
 /* ---------- tables ---------- */
-.tw{overflow-x:auto;border:1px solid var(--line);border-radius:9px;margin:12px 0}
-table{border-collapse:collapse;width:100%;font-size:.79rem;white-space:nowrap}
+.tw{overflow-x:auto;border:1px solid var(--line);border-radius:9px;margin:12px 0;
+  max-width:100%;-webkit-overflow-scrolling:touch}
+.tw table{min-width:max-content}
+table{border-collapse:collapse;width:100%;font-size:.79rem;white-space:nowrap;
+  font-variant-numeric:tabular-nums}
+/* the event row spans the table and must wrap, not stretch it */
+td[colspan]{white-space:normal;overflow-wrap:anywhere;max-width:0;width:100%}
 th,td{padding:6px 10px;text-align:right;border-bottom:1px solid var(--line)}
 th{background:#f0f4fa;font-weight:620;position:sticky;top:0;font-size:.74rem}
 th:first-child,td:first-child{text-align:left;position:sticky;left:0;background:#fff}
@@ -121,7 +185,9 @@ tr.evt td{background:var(--warn-bg)!important;font-weight:600}
 tr.ret td{border-top:2px solid var(--gold)}
 
 /* ---------- results ---------- */
-.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin:14px 0}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:13px;margin:16px 0;
+  align-items:stretch}
+.kpi{display:flex;flex-direction:column;justify-content:space-between}
 .kpi{background:#fff;border:1px solid var(--line);border-radius:9px;padding:14px}
 .kpi .k{font-size:.68rem;letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
 .kpi .v{font-size:1.4rem;font-weight:680;margin-top:3px}
@@ -140,6 +206,43 @@ tr.ret td{border-top:2px solid var(--gold)}
 .badge{display:inline-block;padding:2px 9px;border-radius:20px;font-size:.72rem;font-weight:640}
 .badge.p{background:var(--ok-bg);color:var(--ok)} .badge.f{background:var(--bad-bg);color:var(--bad)}
 
+/* ---------- affixed inputs ---------- */
+.affix{position:relative;display:flex;align-items:center}
+.affix input{padding-left:26px}
+.affix.pct input{padding-left:10px;padding-right:28px}
+.affix::before{position:absolute;left:10px;color:var(--muted);font-size:.85rem;pointer-events:none;z-index:1}
+.affix.money::before{content:'$'}
+.affix.pct::after{content:'%';position:absolute;right:10px;color:var(--muted);font-size:.85rem;pointer-events:none}
+.affix.money input,.affix.pct input{text-align:right;font-variant-numeric:tabular-nums}
+
+/* ---------- progress ring ---------- */
+.pstep{display:inline-flex;align-items:center;gap:6px}
+.ring{width:13px;height:13px;border-radius:50%;border:2px solid currentColor;flex:0 0 auto;position:relative}
+.ring.full{background:currentColor}
+.ring.part::after{content:'';position:absolute;inset:1px;border-radius:50%;
+  background:conic-gradient(currentColor var(--p,0%),transparent 0)}
+
+/* ---------- findings ---------- */
+.fgrp{margin-bottom:12px}
+.fgrp>h5{font-size:.7rem;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);margin:0 0 5px}
+.fcount{display:inline-flex;align-items:center;justify-content:center;min-width:19px;height:19px;
+  border-radius:20px;background:var(--brand);color:#fff;font-size:.68rem;font-weight:650;padding:0 6px;margin-left:auto}
+.fnd{display:grid;grid-template-columns:16px 1fr;gap:8px}
+.fnd .ic{font-size:.9rem;line-height:1.3}
+
+/* ---------- charts ---------- */
+.chart{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--line);border-radius:9px}
+.lg{display:flex;gap:14px;flex-wrap:wrap;font-size:.75rem;color:var(--muted);margin:8px 0 0}
+.lg i{display:inline-block;width:11px;height:11px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+
+/* ---------- validation ---------- */
+.f.err input,.f.err select{border-color:var(--bad);background:#fffafa}
+.f .emsg{font-size:.73rem;color:var(--bad);font-weight:560}
+
+/* ---------- sticky action bar ---------- */
+.nav{position:sticky;bottom:0;z-index:30;background:#fff;
+  box-shadow:0 -2px 12px rgba(16,32,56,.07)}
+
 .hide{display:none!important}
 .tabs{display:flex;gap:5px;border-bottom:1px solid var(--line);margin-bottom:14px;flex-wrap:wrap}
 .tab{padding:7px 13px;border:none;background:none;color:var(--muted);font-size:.86rem;font-weight:560;
@@ -148,11 +251,13 @@ tr.ret td{border-top:2px solid var(--gold)}
 .toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;
   padding:9px 18px;border-radius:8px;font-size:.84rem;z-index:99;opacity:0;transition:.25s;pointer-events:none}
 .toast.on{opacity:1}
-footer{max-width:1280px;margin:0 auto;padding:0 22px 40px;color:var(--muted);font-size:.78rem}
+footer{width:100%;padding:0 26px 44px;color:var(--muted);font-size:.78rem}
 
 @media print{
   header,.prog,.side,.nav,.hactions,#selftest,.tabs{display:none!important}
-  main{grid-template-columns:1fr;padding:0}
+  main{grid-template-columns:1fr;padding:0;max-width:none}
+  .grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .tw{overflow:visible}
   .card{break-inside:avoid;box-shadow:none;border-color:#ccc}
   body{background:#fff}
 }
@@ -193,12 +298,17 @@ footer{max-width:1280px;margin:0 auto;padding:0 22px 40px;color:var(--muted);fon
       <span class="sp" id="navInfo"></span>
     </div>
     <div id="results"></div>
-    <div id="selftest"></div>
+    <!-- Engine self-test panel — hidden from the client-facing form.
+         The selfTest() function below still exists and still works; to show the panel
+         again, uncomment this div and the selfTest() call at the end of the script.
+         Run it whenever the 2026 constants are refreshed. -->
+    <!-- <div id="selftest"></div> -->
   </div>
 
   <aside class="side">
     <div class="card">
-      <h3 style="margin-bottom:8px">Live findings</h3>
+      <h3 style="margin-bottom:8px;display:flex;align-items:center;gap:8px">Live findings
+        <span class="fcount" id="fndCount">0</span></h3>
       <p class="lede" style="margin:0 0 10px;font-size:.78rem">
         Updates as you type. Each one cites the rule it comes from.</p>
       <div id="findings"><div class="fnd i">Start filling in Module 0 — findings appear here.</div></div>
@@ -345,6 +455,9 @@ const C = Object.freeze({
     VT:{t:5000000,cliff:false}, ME:{t:7000000,cliff:false}, CT:{t:15000000,cliff:false},
     HI:{t:5490000,cliff:false}, DC:{t:4873200,cliff:false}
   },
+  /* Graduated state estate rates — [taxable over threshold, marginal rate] */
+  STATE_ESTATE_RATES:[[0,.008],[100000,.016],[500000,.032],[1000000,.048],
+                      [2000000,.064],[4000000,.080],[6000000,.096],[10000000,.16]],
   STATE_INHERITANCE:['NJ','PA','NE','KY','MD'],
   COMMUNITY_PROPERTY:['AZ','CA','ID','LA','NV','NM','TX','WA','WI']
 });
@@ -358,6 +471,47 @@ const STATES=['AL','AK','AZ','AR','CA','CO','CT','DE','DC','FL','GA','HI','ID','
 const YN=[['','—'],['y','Yes'],['n','No']];
 const stOpts=[['','—']].concat(STATES.map(x=>[x,x]));
 const S=s=>s||{};
+
+/* Placeholders — realistic examples so nobody has to guess the unit or format */
+const PH={
+ clientName:'Jane Rivera', spouseName:'Alex Rivera', city:'Austin', moveAge:'70',
+ dependents:'2', depAges:'14, 17', retireAge:'65', ptIncome:'60,000', ptUntilAge:'70',
+ w2:'420,000', spouseW2:'180,000', bonusComp:'85,000', isoSpread:'0',
+ bizProfit:'180,000', bizW2:'150,000', bizUBIA:'200,000', bizHours:'2,000',
+ incomeGrowth:'3.0', otherIncome:'12,000',
+ priorYearWages:'420,000', retReturn:'6.5', advisoryFee:'0.90',
+ ssAtFRA:'4,152', aime:'10,000', spouseSsAtFRA:'2,333', spouseClaimAge:'67',
+ balance:'900,000', contrib:'24,500', employerMatch:'12,000', loan:'0',
+ label:'Lakeview duplex', price:'1,200,000', land:'250,000', value:'1,350,000',
+ mortBal:'800,000', mortRate:'6.50', mortTerm:'336', avgStay:'5',
+ daysRented:'240', personalDays:'8', hours:'320', otherHours:'40',
+ rentIncome:'145,000', expenses:'85,000', segPct5:'15', segPct15:'10',
+ accumDep:'0', suspPassive:'0', basis:'1,200,000', atRisk:'1,200,000',
+ sellAge:'leave blank to hold',
+ reGrowth:'3.5',
+ name:'Harbor Partners LP', biz:'Multifamily real estate', ownPct:'10',
+ ordinary:'-120,000', rental:'0', portfolio:'4,500', capGain:'0',
+ debtBasis:'0', shareDebt:'0', suspBasis:'0', suspAtRisk:'0',
+ taxableBal:'600,000', taxableBasis:'400,000', taxableYield:'20,000',
+ taxableReturn:'5.75', capLossST:'0', capLossLT:'0', nol:'0', negQBI:'0', amtCredit:'0',
+ face:'3,000,000', cashValue:'350,000', premiumsPaid:'300,000', annualPremium:'54,400',
+ loanBal:'0', loanRate:'5.00', creditRate:'5.50', planLoans:'0',
+ otherAssets:'250,000', debts:'0', priorGifts:'0', dsue:'0', heirRate:'35',
+ monthlyMedical:'1,500', hcInflation:'5.0', ltcPremium:'4,960',
+ ltcStartAge:'84', ltcYears:'3', ltcAnnualCost:'110,000',
+ monthlyExpenses:'15,000', inflation:'2.5', retExpenseFactor:'85',
+ otherStates:'CO, FL', daysOtherState:'45',
+ deathAge:'80', survivorFactor:'75', windfallAge:'66', windfallAmt:'2,500,000',
+ windfallBasis:'400,000', divorceAge:'58', rothConvAmt:'120,000'
+};
+function placeholderFor(f){
+  if(PH[f.k]!==undefined)return PH[f.k];
+  if(f.t==='money')return '0';
+  if(f.t==='pct')return '0.0';
+  if(f.t==='num')return '0';
+  if(f.t==='date')return '';
+  return '';
+}
 
 const SCHEMA=[
 {id:'m0',n:'Engagement & scope',lede:'Who you are, where you live and how much risk you want. These answers set every bracket, deduction and state rule used below.',
@@ -642,6 +796,24 @@ function pia(aime){
 }
 function bendPoints(awi){return{b1:Math.round(C.SS.base1*awi/C.SS.awi1977),
                                 b2:Math.round(C.SS.base2*awi/C.SS.awi1977)};}
+/* --- Spousal benefit: up to 50% of the WORKER's PIA, anchored to PIA regardless of
+       what the worker actually claims.  Its own reduction curve (25/36 of 1% for the
+       first 36 months, then 5/12 of 1%).  Delayed credits NEVER apply to spousal. --- */
+function spousalFactor(claimAge,fra){
+  if(claimAge>=fra)return 0.50;                       // no DRCs on spousal
+  const m=Math.round((fra-claimAge)*12);
+  const red=(25/36/100)*Math.min(m,36)+(5/12/100)*Math.max(0,m-36);
+  return 0.50*(1-red);                                // 62 w/ FRA 67 -> 32.5% of PIA
+}
+/* --- Retirement earnings test.  Withheld benefits are restored at FRA --- */
+function earningsTest(benefit,earnings,age,fra,infl){
+  if(benefit<=0||earnings<=0||age>=fra)return{paid:benefit,withheld:0};
+  const reachesFRAThisYear=(fra-age)<1;
+  const lim=(reachesFRAThisYear?C.SS.earnTestNRAMo:C.SS.earnTestMo)*12*infl;
+  const rate=reachesFRAThisYear?3:2;
+  const withheld=Math.min(benefit,Math.max(0,earnings-lim)/rate);
+  return{paid:benefit-withheld,withheld};
+}
 /* --- Claiming adjustment: -5/9 of 1% first 36 months, then -5/12; +2/3 of 1% delayed --- */
 function claimAdj(claimAge,fra){
   if(claimAge<fra){
@@ -744,6 +916,16 @@ function classifyProperty(p){
   out.reason='Rental activity → passive by default regardless of hours, unless a real estate professional';
   return out;
 }
+/* --- Cost of insurance: per $1,000 of net amount at risk, age-banded.
+       Approximates a 2017 CSO-style curve; replaces the placeholder that had a
+       cancelling /1000*1000 and a flat 0.4% inflating at 6%. --- */
+function coiPer1000(age){
+  if(age<30)return 0.9;  if(age<40)return 1.2;  if(age<50)return 2.4;
+  if(age<55)return 4.2;  if(age<60)return 6.8;  if(age<65)return 11.0;
+  if(age<70)return 18.5; if(age<75)return 31.0; if(age<80)return 52.0;
+  if(age<85)return 88.0; if(age<90)return 148.0; if(age<95)return 240.0;
+  return 380.0;
+}
 /* --- LTC premium cap by age --- */
 function ltcCap(age){for(const[a,c]of C.LTC_CAP){if(age<=a)return c;}return 6200;}
 
@@ -774,6 +956,7 @@ function project(s){
     if(['t401k','tira','sep','simple','t403b','t457'].includes(a.type))pretax+=b;
     else if(['r401k','rira'].includes(a.type))roth+=b; else if(a.type==='hsa')hsa+=b;});
   let taxable=N(s.taxableBal);
+  let taxableBasis=N(s.taxableBasis)||N(s.taxableBal);   /* tracked so withdrawals realise gain */
   let nol=N(s.nol), capST=N(s.capLossST), capLT=N(s.capLossLT);
   let negQBI=N(s.negQBI), amtCredit=N(s.amtCredit);
   let priorPretax=pretax;
@@ -802,12 +985,15 @@ function project(s){
 
     /* ---------- STEP 0 — life events ---------- */
     if(s.modelDeath==='y'&&age===N(s.deathAge)){
-      widowed=true;
-      fs=(s.hasDepChild==='y')?'qss':'single';
-      evts.push('Spouse died — filing status → '+(fs==='qss'?'Qualifying Surviving Spouse':'Single'));
+      widowed=true;                       /* status stays MFJ for the ENTIRE year of death */
+      evts.push('Spouse died — filing status stays MFJ for this year (IRC §2)');
       notes.push({t:'b',y:year,m:`Age ${age}: the widow's penalty begins. Filing status, bracket widths, the standard deduction and the IRMAA threshold all roughly halve at once.`});
     }
-    if(widowed&&fs==='qss'&&age>N(s.deathAge)+2){fs='single';}
+    if(widowed&&age>N(s.deathAge)){
+      const yrsSince=age-N(s.deathAge);
+      const nf=(s.hasDepChild==='y'&&yrsSince<=2)?'qss':'single';
+      if(nf!==fs){fs=nf;evts.push('Filing status → '+(nf==='qss'?'Qualifying Surviving Spouse':'Single'));}
+    }
     if(s.modelDivorce==='y'&&age===N(s.divorceAge)){divorced=true;fs='single';evts.push('Divorce — filing status → Single');}
     if(s.expectLTC==='y'&&age>=N(s.ltcStartAge)&&age<N(s.ltcStartAge)+N(s.ltcYears)){
       if(!ltcActive){evts.push('Long-term care begins');ltcActive=true;
@@ -859,13 +1045,27 @@ function project(s){
     const claim=+(s.ssClaimAge||67);
     const basePIA=s.ssSource==='stmt'?N(s.ssAtFRA):pia(N(s.aime)||(N(s.w2)/12*0.35));
     const spousePIA=N(s.spouseSsAtFRA);
-    if(age>=claim&&basePIA>0){
-      let own=basePIA*claimAdj(claim,C.SS.fra)*12*Math.pow(1+C.SS.cola,age-claim);
+    let ssWithheld=0;
+    if(age>=claim&&(basePIA>0||spousePIA>0)){
+      const own=basePIA*claimAdj(claim,C.SS.fra)*12*Math.pow(1+C.SS.cola,age-claim);
+      /* spouse: the greater of their OWN benefit and the spousal benefit (50% of my PIA) */
       let sp=0;
-      if(!widowed&&spousePIA>0&&age>=+(s.spouseClaimAge||67))
-        sp=spousePIA*12*Math.pow(1+C.SS.cola,age-(+(s.spouseClaimAge||67)));
-      /* survivor keeps the HIGHER of the two, never both */
-      ss=widowed?Math.max(own,spousePIA*12*Math.pow(1+C.SS.cola,Math.max(0,age-claim))):own+sp;
+      const spClaim=+(s.spouseClaimAge||67);
+      if(!widowed&&age>=spClaim){
+        const spOwn=spousePIA*claimAdj(spClaim,C.SS.fra);
+        const spSpousal=basePIA*spousalFactor(spClaim,C.SS.fra);
+        sp=Math.max(spOwn,spSpousal)*12*Math.pow(1+C.SS.cola,age-spClaim);
+      }
+      if(widowed){
+        /* survivor keeps the HIGHER of the two, never both — indexed off ITS OWN claim year */
+        const survivorOwn=spousePIA*12*Math.pow(1+C.SS.cola,Math.max(0,age-spClaim));
+        ss=Math.max(own,survivorOwn);
+      } else ss=own+sp;
+      /* earnings test — only on earned income, only before FRA */
+      const et=earningsTest(ss,w2,age,C.SS.fra,iAdj);
+      ss=et.paid; ssWithheld=et.withheld;
+      if(et.withheld>0&&!rows.some(r=>r.ssWithheld>0))
+        notes.push({t:'i',y:year,m:`Age ${age}: ${money(et.withheld)} of Social Security is withheld by the earnings test. It is not lost — benefits are recomputed upward at full retirement age.`});
     }
 
     /* ---------- STEP 5 — RMD (prior 31 Dec balance) ---------- */
@@ -934,13 +1134,48 @@ function project(s){
     }
     const bizAllowed=bizNet<0?bizNet+ebl:bizNet;
 
+    /* ---------- payroll + self-employment tax ----------
+       Computed BEFORE AGI because half the SE tax is an above-the-line deduction. */
+    let payroll=0,seDeductible=0;
+    if(w2>0){payroll+=Math.min(w2,C.FICA.wageBase*iAdj)*C.FICA.ss+w2*C.FICA.med
+             +Math.max(0,w2-C.FICA.addlThr[fs])*C.FICA.addl;}
+    /* Sole proprietors AND general partners owe SE tax.
+       S-corp shareholders do NOT owe it on K-1 income. */
+    let seIncome=0;
+    if(s.entity==='sole'&&bizProfit>0)seIncome+=bizProfit;
+    k1s.forEach(k=>{if(k.etype==='part'&&k.mp==='y'){
+      const o=N(k.ordinary)*Math.pow(1+gGrow,n); if(o>0)seIncome+=o;}});
+    if(seIncome>0){
+      const b=seIncome*C.SE.factor;
+      const wageRoom=Math.max(0,C.FICA.wageBase*iAdj-w2);
+      const seTax=Math.min(b,wageRoom)*C.SE.ssRate+b*C.SE.medRate;
+      payroll+=seTax; seDeductible=seTax*0.5;         /* IRC §164(f) */
+    }
+
     /* ---------- STEP 10 — AGI ---------- */
     const portfolioInc=N(s.taxableYield)*Math.pow(1+infl,n);
+    /* --- Realised capital gain on the taxable account ---
+       The withdrawal depends on tax, and tax depends on the realised gain.  Resolved with
+       ONE pre-pass: estimate the cash shortfall using the prior year's effective rate,
+       realise the proportional gain, then compute tax once with that gain included.
+       Deliberately not iterated to convergence — one pass is accurate to a few dollars. */
+    let realizedGain=0;
+    {
+      const prevEff=rows.length?Math.min(.45,rows[rows.length-1].tax/Math.max(1,rows[rows.length-1].income)):.25;
+      const grossIn=w2+bizAllowed+otherInc+ss+rmd+portfolioInc+reIncome+windfall;
+      const estExp=gen+health+ltcCost+(age>=65?irmaaOf(magiHist[year-2]??grossIn,fs,(married&&!widowed)?2:1):0);
+      const estNeed=estExp+grossIn*prevEff-grossIn;
+      if(estNeed>0&&taxable>0){
+        const take=Math.min(taxable,estNeed);
+        const gainFrac=Math.max(0,1-taxableBasis/taxable);
+        realizedGain=take*gainFrac;
+      }
+    }
     const rothConv=(s.rothConv==='y'&&!working&&age<rmdAge)?N(s.rothConvAmt):0;
     let capGain=0;
     if(windfall>0)capGain=windfallQSBS?0:Math.max(0,windfall-windfallBasisAmt);
     const otherForSS=w2+bizAllowed+otherInc+rmd+portfolioInc+reIncome
-                     -passiveAllowed+rothConv+capGain;
+                     -passiveAllowed+rothConv+capGain+realizedGain-seDeductible;
     const ssTaxable=taxableSS(ss,otherForSS,0,C.SS.taxThr[fs]||C.SS.taxThr.single);
     let agi=otherForSS+ssTaxable;
     /* NOL — 80% limit */
@@ -951,6 +1186,9 @@ function project(s){
     if(capUsed>0){const fromST=Math.min(capST,capUsed);capST-=fromST;capLT-=(capUsed-fromST);agi-=capUsed;}
     agi=Math.max(0,agi);
     magiHist[year]=agi;
+    /* Medicare premiums for THIS year use MAGI from two years prior — compute now so the
+       medical deduction below can include them (§213 allows Medicare premiums). */
+    const irmaaPrior=age>=65?irmaaOf(magiHist[year-2]??agi,fs,(married&&!widowed)?2:1):0;
 
     /* ---------- STEP 11-12 — deductions, QBI, regular tax ---------- */
     let ded=(C.STD[fs]||C.STD.single)*iAdj+(C.ADD65[fs]||0)*people65*iAdj;
@@ -960,7 +1198,7 @@ function project(s){
     }
     /* medical / LTC deduction above 7.5% of AGI — IRC §213 */
     const ltcPrem=Math.min(N(s.ltcPremium),ltcCap(age));
-    const medTotal=health+ltcCost+ltcPrem;
+    const medTotal=health+ltcCost+ltcPrem+irmaaPrior;   /* Medicare premiums count — §213 */
     const medDed=(s.itemize==='y'||ltcCost>0)?Math.max(0,medTotal-C.MED_FLOOR*agi):0;
     const stdDed=ded;                                   // standard + age-65 + senior bonus
     const saltCap=40000*iAdj;                           // OBBBA SALT cap
@@ -975,19 +1213,20 @@ function project(s){
                               N(s.bizW2)*Math.pow(1+gGrow,n),N(s.bizUBIA));
     if(qbiRaw<0){negQBI=qbiRaw;} else negQBI=0;
     const ti=Math.max(0,tiBefore-qbiDed);
-    const ordinaryTI=Math.max(0,ti-capGain);
+    const totalGains=Math.max(0,capGain+realizedGain);
+    const gainsInTI=Math.min(totalGains,ti);          /* cannot exceed taxable income */
+    const ordinaryTI=Math.max(0,ti-gainsInTI);
     const fed=bracketTax(ordinaryTI,C.BRACKETS[fs]||C.BRACKETS.single,iAdj)
-             +ltcgTax(ordinaryTI,Math.min(capGain,ti),C.LTCG[fs]||C.LTCG.single,iAdj);
+             +ltcgTax(ordinaryTI,gainsInTI,C.LTCG[fs]||C.LTCG.single,iAdj);
 
     /* ---------- payroll ---------- */
-    let payroll=0;
-    if(w2>0){payroll+=Math.min(w2,C.FICA.wageBase*iAdj)*C.FICA.ss+w2*C.FICA.med
-             +Math.max(0,w2-C.FICA.addlThr[fs])*C.FICA.addl;}
-    if(s.entity==='sole'&&bizProfit>0){const b=bizProfit*C.SE.factor;
-      payroll+=Math.min(b,C.FICA.wageBase*iAdj)*C.SE.ssRate+b*C.SE.medRate;}
+    /* payroll + SE tax were computed before AGI — see above */
 
     /* ---------- STEP 13 — NIIT (own income definition) ---------- */
-    const nii=portfolioInc+Math.max(0,capGain)+Math.max(0,passiveIncome-passiveAllowed>0?0:passiveIncome);
+    /* Net investment income has its OWN definition.  Passive business income counts;
+       wages, self-employment income, Social Security and retirement distributions do not. */
+    const netPassiveForNII=Math.max(0,passiveIncome-passiveAllowed);
+    const nii=Math.max(0,portfolioInc+Math.max(0,capGain)+realizedGain+netPassiveForNII);
     const niit=niitOf(nii,agi,fs);
 
     /* ---------- STEP 14 — AMT (parallel rail) ----------
@@ -1008,9 +1247,9 @@ function project(s){
     const stateTax=stTI*stRate;
 
     /* ---------- IRMAA (MAGI from two years prior) ---------- */
-    let irmaa=0;
+    let irmaa=irmaaPrior;
     if(age>=65){const m2=magiHist[year-2]??agi;
-      irmaa=irmaaOf(m2,fs,(married&&!widowed)?2:1);
+      irmaa=irmaaPrior;   /* already computed above, from the same two-year-prior MAGI */
       const joint=['mfj','qss'].includes(fs);
       const t1=joint?C.MEDICARE.tiers[1].j:C.MEDICARE.tiers[1].s;
       if(m2>t1&&!rows.some(r=>r.irmaa>C.MEDICARE.partB*12*2))
@@ -1027,10 +1266,18 @@ function project(s){
     /* ---------- STEP 16 — growth, then withdrawals ---------- */
     pretax=pretax*(1+rRet)+pretaxContrib*Math.pow(1+rRet,.5)-rmd-rothConv;
     roth=roth*(1+rRet)+rothContrib*Math.pow(1+rRet,.5)+rothConv;
-    taxable=taxable*(1+rTax)+Math.max(0,surplus);
+    const taxGrowth=taxable*rTax;
+    taxable=taxable+taxGrowth+Math.max(0,surplus);
+    taxableBasis+=Math.max(0,surplus);                 /* contributions add basis */
     if(surplus<0){
       let need=-surplus;
-      const takeT=Math.min(taxable,need);taxable-=takeT;need-=takeT;
+      const takeT=Math.min(taxable,need);
+      if(takeT>0&&taxable>0){
+        /* gain was already booked in the pre-pass above; here we only move basis */
+        const gainFrac=Math.max(0,1-taxableBasis/taxable);
+        taxableBasis=Math.max(0,taxableBasis-takeT*(1-gainFrac));
+      }
+      taxable-=takeT;need-=takeT;
       const takeP=Math.min(Math.max(0,pretax),need);pretax-=takeP;need-=takeP;
       const takeR=Math.min(Math.max(0,roth),need);roth-=takeR;need-=takeR;
       if(need>0&&!rows.some(r=>r.depleted))
@@ -1044,7 +1291,9 @@ function project(s){
     pols.forEach(p=>{
       if(p._lapsed)return;
       const prem=working?N(p.annualPremium):0;
-      const load=prem*.07, coi=Math.max(0,(N(p.face)-p._cv))*0.004*Math.pow(1.06,n)/1000*1000;
+      const load=prem*.07;
+      const netAtRisk=Math.max(0,N(p.face)-p._cv);
+      const coi=(netAtRisk/1000)*coiPer1000(age);      /* per $1,000 of net amount at risk */
       const cr=(N(p.creditRate)/100||.055);
       p._basis+=prem;
       p._cv=p._cv+prem-load-coi+p._cv*cr;
@@ -1070,13 +1319,24 @@ function project(s){
     const se=C.STATE_ESTATE[s.state];
     let stateEstate=0;
     if(se){const net=gross-N(s.debts);
-      if(se.cliff&&se.cliffPct){ if(net>se.t*se.cliffPct)stateEstate=net*.10; }
-      else if(net>se.t)stateEstate=(net-se.t)*.12;}
+      /* NY-style cliff: exceed 105% of the exemption and the WHOLE estate is taxed */
+      const taxBase=(se.cliff&&se.cliffPct)
+        ? (net>se.t*se.cliffPct?net:0)
+        : Math.max(0,net-se.t);
+      if(taxBase>0){let t=0,prev=0;
+        for(const[over,rate]of C.STATE_ESTATE_RATES){
+          const slice=Math.min(taxBase,over===0?Infinity:over)-prev;
+          if(over===0)continue;
+          if(slice>0){t+=slice*rate;prev=over;}
+          if(taxBase<=over)break;
+        }
+        if(taxBase>prev)t+=(taxBase-prev)*C.STATE_ESTATE_RATES[C.STATE_ESTATE_RATES.length-1][1];
+        stateEstate=t;}}
     const irdTax=pretax*heirRate;
     const netToHeirs=Math.max(0,gross-N(s.debts)-fedEstate-stateEstate-irdTax);
 
     /* ---------- STEP 20 — deflate ---------- */
-    rows.push({age,year,fs,working,widowed,evts,
+    rows.push({age,year,fs,working,widowed,evts,ssWithheld:R(ssWithheld),realizedGain:R(realizedGain),
       income:R(income),w2:R(w2),ss:R(ss),rmd:R(rmd),biz:R(bizAllowed),
       expenses:R(expenses),ltc:R(ltcCost),irmaa:R(irmaa),
       contrib:R(pretaxContrib+rothContrib),agi:R(agi),ti:R(ti),
@@ -1128,19 +1388,48 @@ function field(f,val,path){
   } else if(f.t==='textarea'){
     ctl=`<textarea id="${id}" data-p="${path}">${esc(v)}</textarea>`;
   } else if(f.t==='check'){
-    ctl=`<label class="chk"><input type="checkbox" id="${id}" data-p="${path}"${v?' checked':''}><span>${esc(f.l)}</span></label>`;
-    return `<div class="f${f.w?' wide':''}">${ctl}${f.h?`<span class="hint">${esc(f.h)}</span>`:''}</div>`;
+    return `<div class="f chkf${f.w?' wide':''}">
+      <span aria-hidden="true"></span>
+      <label class="chk"><input type="checkbox" id="${id}" data-p="${path}"${v?' checked':''}>
+        <span>${esc(f.l)}</span></label>
+      ${f.h?`<span class="hint">${esc(f.h)}</span>`:'<span></span>'}</div>`;
   } else {
     const t=f.t==='date'?'date':(f.t==='num'||f.t==='year')?'number':'text';
-    const ph=f.t==='money'?'$0':f.t==='pct'?'%':'';
-    ctl=`<input type="${t}" id="${id}" data-p="${path}" value="${esc(v)}" placeholder="${ph}"
-      ${f.t==='money'?'inputmode="decimal"':''}${f.t==='pct'?'inputmode="decimal" step="0.1"':''}>`;
+    const ph=placeholderFor(f);
+    const aff=f.t==='money'?'money':f.t==='pct'?'pct':'';
+    const inp=`<input type="${t}" id="${id}" data-p="${path}" value="${esc(v)}"
+      placeholder="${esc(ph)}" ${aff?`data-fmt="${aff}"`:''}
+      ${f.t==='money'?'inputmode="decimal" autocomplete="off"':''}
+      ${f.t==='pct'?'inputmode="decimal" step="0.1"':''}>`;
+    ctl=aff?`<div class="affix ${aff}">${inp}</div>`:inp;
   }
-  return `<div class="f${f.w?' wide':''}">
-    <label for="${id}">${esc(f.l)}${f.req?' <span style="color:#a4262c">*</span>':''}</label>
-    ${ctl}${f.h?`<span class="hint">${esc(f.h)}</span>`:''}</div>`;
+  const missing=f.req&&(v===''||v===undefined);
+  const touched=state.__touched&&state.__touched[path];
+  const bad=missing&&touched;
+  /* third row is always emitted — empty if there is no hint — so the subgrid rows
+     stay in step and every control in a row sits on the same baseline */
+  const foot=bad?`<span class="emsg">This one is needed for the projection</span>`
+                :f.h?`<span class="hint">${esc(f.h)}</span>`:`<span class="hint"></span>`;
+  return `<div class="f${f.w?' wide':''}${bad?' err':''}${f.t==='textarea'?' tall':''}">
+    <label for="${id}">${esc(f.l)}${f.req?' <span style="color:#a4262c" title="Required">*</span>':''}</label>
+    ${ctl}${foot}</div>`;
 }
 
+function repSummary(key,it){
+  const m=v=>v?money(v):'';
+  if(key==='props'){
+    const cls=it.rentType==='str'?`STR ${it.avgStay||'?'}-day avg`:it.rentType==='ltr'?'Long-term':it.kind||'';
+    return [it.label,cls,m(it.value)].filter(Boolean).join(' · ');
+  }
+  if(key==='k1s')return [it.name,it.etype==='part'?'Partnership':it.etype==='scorp'?'S-corp':'',
+    it.ordinary?m(it.ordinary):''].filter(Boolean).join(' · ');
+  if(key==='policies')return [({term:'Term',whole:'Whole life',ul:'UL',iul:'IUL',vul:'VUL'})[it.ptype]||'',
+    it.face?m(it.face)+' benefit':''].filter(Boolean).join(' · ');
+  if(key==='accounts')return [({t401k:'Traditional 401(k)',r401k:'Roth 401(k)',tira:'Traditional IRA',
+    rira:'Roth IRA',sep:'SEP IRA',simple:'SIMPLE',t403b:'403(b)',t457:'457(b)',hsa:'HSA'})[it.type]||'',
+    it.balance?m(it.balance):''].filter(Boolean).join(' · ');
+  return '';
+}
 function renderStep(){
   const m=SCHEMA[step];
   let h=`<div class="card"><h2><span class="mnum">Module ${step}</span> ${esc(m.n)}</h2>
@@ -1152,10 +1441,13 @@ function renderStep(){
     if(m.rep){
       const key=m.rep.key, list=state[key]||[];
       h+=`<fieldset style="margin-top:16px"><legend>${esc(m.rep.label)}s — ${list.length} added</legend>`;
-      if(!list.length)h+=`<div class="empty">No ${esc(m.rep.label)}s yet. Add one if it applies to you.</div>`;
+      if(!list.length)h+=`<div class="empty"><div style="font-size:1.6rem;opacity:.35;margin-bottom:4px">+</div>
+        <b>No ${esc(m.rep.label)}s yet</b><br>
+        <span style="font-size:.8rem">Add one if it applies to you — otherwise move on. This module is optional.</span></div>`;
       list.forEach((item,i)=>{
         h+=`<div class="rep"><div class="rep-hd"><strong>${esc(m.rep.label)} ${i+1}</strong>
-          ${item.label||item.name?`<small>${esc(item.label||item.name)}</small>`:''}
+          <small>${esc(repSummary(key,item))}</small>
+          <button class="btn-sec btn-sm" data-dup="${key}:${i}">Duplicate</button>
           <button class="btn-danger btn-sm" data-del="${key}:${i}">Remove</button></div>
           <div class="grid">`+
           m.rep.fields.map(f=>{
@@ -1178,10 +1470,20 @@ function renderStep(){
   window.scrollTo({top:0,behavior:'smooth'});
 }
 
+function moduleFill(m){
+  const fs=(m.fields||[]).filter(f=>!f.show||f.show(state));
+  if(!fs.length)return m.rep?((state[m.rep.key]||[]).length?1:0):1;
+  const done=fs.filter(f=>{const v=state[f.k];return v!==undefined&&v!=='';}).length;
+  return done/fs.length;
+}
 function renderProgress(){
-  $('progSteps').innerHTML=SCHEMA.map((m,i)=>
-    `<button class="pstep ${i===step?'cur':i<step?'done':''}" data-go="${i}">${i}. ${esc(m.n)}</button>`).join('');
-  $('progBar').style.width=(step/(SCHEMA.length-1)*100)+'%';
+  $('progSteps').innerHTML=SCHEMA.map((m,i)=>{
+    const p=moduleFill(m), cls=p>=1?'full':p>0?'part':'';
+    return `<button class="pstep ${i===step?'cur':p>=1?'done':''}" data-go="${i}"
+      title="${Math.round(p*100)}% complete">
+      <span class="ring ${cls}" style="--p:${Math.round(p*100)}%"></span>${i}. ${esc(m.n)}</button>`;}).join('');
+  const overall=SCHEMA.reduce((t,m)=>t+moduleFill(m),0)/SCHEMA.length;
+  $('progBar').style.width=(overall*100)+'%';
 }
 
 function setPath(p,v){
@@ -1195,13 +1497,27 @@ function bind(){
       save();renderFindings();
       if(el.tagName==='SELECT')renderStep();};
     el.addEventListener('change',h);
+    el.addEventListener('blur',()=>{(state.__touched=state.__touched||{})[el.dataset.p]=1;
+      if(el.value==='')renderStep();});
     if(el.tagName!=='SELECT')el.addEventListener('input',()=>{
+      if(el.dataset.fmt==='money'){
+        const caretEnd=el.selectionStart===el.value.length;
+        const raw=el.value.replace(/[^0-9.\-]/g,'');
+        const parts=raw.split('.');
+        const whole=parts[0].replace(/\B(?=(\d{3})+(?!\d))/g,',');
+        el.value=parts.length>1?whole+'.'+parts[1].slice(0,2):whole;
+        if(caretEnd)el.setSelectionRange(el.value.length,el.value.length);
+      }
       setPath(el.dataset.p,el.type==='checkbox'?el.checked:el.value);save();renderFindings();});
   });
   document.querySelectorAll('[data-add]').forEach(b=>b.onclick=()=>{
     const k=b.dataset.add;(state[k]=state[k]||[]).push({});save();renderStep();});
   document.querySelectorAll('[data-del]').forEach(b=>b.onclick=()=>{
-    const[k,i]=b.dataset.del.split(':');state[k].splice(+i,1);save();renderStep();});
+    const[k,i]=b.dataset.del.split(':');
+    if(confirm('Remove this entry?')){state[k].splice(+i,1);save();renderStep();}});
+  document.querySelectorAll('[data-dup]').forEach(b=>b.onclick=()=>{
+    const[k,i]=b.dataset.dup.split(':');
+    state[k].splice(+i+1,0,JSON.parse(JSON.stringify(state[k][+i])));save();renderStep();toast('Duplicated');});
   document.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>{step=+b.dataset.go;renderStep();});
 }
 
@@ -1331,11 +1647,104 @@ function findings(){
   if(!out.length)out.push({t:'i',b:'Nothing flagged yet',m:'Keep filling in the modules — findings appear here as soon as a rule engages.',src:''});
   return out;
 }
+const SEV={b:{o:0,ic:'\u26A0',n:'Needs attention'},w:{o:1,ic:'\u26A1',n:'Worth knowing'},
+           o:{o:2,ic:'\u2713',n:'In your favour'},i:{o:3,ic:'\u2139',n:'For information'}};
 function renderFindings(){
-  $('findings').innerHTML=findings().map(f=>
-    `<div class="fnd ${f.t}"><b>${esc(f.b)}</b>${esc(f.m)}${f.src?`<div class="src">${esc(f.src)}</div>`:''}</div>`).join('');
+  const all=findings();
+  const groups={};
+  all.forEach(f=>{(groups[f.t]=groups[f.t]||[]).push(f);});
+  const order=Object.keys(groups).sort((a,b)=>(SEV[a]?.o??9)-(SEV[b]?.o??9));
+  const badge=$('fndCount');
+  if(badge)badge.textContent=all.length;
+  $('findings').innerHTML=order.map(k=>{
+    const g=groups[k],meta=SEV[k]||{ic:'\u2022',n:''};
+    return `<div class="fgrp"><h5>${esc(meta.n)} <span class="fcount">${g.length}</span></h5>`+
+      g.map(f=>`<div class="fnd ${k}"><span class="ic">${meta.ic}</span><div>
+        <b>${esc(f.b)}</b>${esc(f.m)}${f.src?`<div class="src">${esc(f.src)}</div>`:''}</div></div>`).join('')+
+    `</div>`;}).join('');
 }
 
+
+
+/* ==========================================================================
+   CHARTS — inline SVG, no library, theme-safe
+   ========================================================================== */
+function chartLine(rows,meta,real){
+  const W=1000,H=300,P={t:16,r:16,b:28,l:64};
+  const f=r=>real?Math.pow(1+meta.infl,r.age-meta.startAge):1;
+  const pts=rows.map(r=>({x:r.age,y:r.netWorth/f(r),e:r.estate/f(r)}));
+  const maxY=Math.max(...pts.map(p=>p.y),1);
+  const x=a=>P.l+(a-meta.startAge)/(meta.endAge-meta.startAge)*(W-P.l-P.r);
+  const y=v=>H-P.b-(v/maxY)*(H-P.t-P.b);
+  const path=k=>pts.map((p,i)=>(i?'L':'M')+x(p.x).toFixed(1)+' '+y(p[k]).toFixed(1)).join(' ');
+  const area=path('y')+` L ${x(meta.endAge).toFixed(1)} ${H-P.b} L ${x(meta.startAge).toFixed(1)} ${H-P.b} Z`;
+  const ticks=[0,.25,.5,.75,1].map(t=>{const v=maxY*t;
+    return `<line x1="${P.l}" y1="${y(v)}" x2="${W-P.r}" y2="${y(v)}" stroke="#e2e8f2"/>
+      <text x="${P.l-8}" y="${y(v)+4}" text-anchor="end" font-size="11" fill="#5b6b82">${moneyK(v)}</text>`;}).join('');
+  const marks=[];
+  const mk=(a,lbl,col)=>{if(a<meta.startAge||a>meta.endAge)return;
+    marks.push(`<line x1="${x(a)}" y1="${P.t}" x2="${x(a)}" y2="${H-P.b}" stroke="${col}" stroke-dasharray="4 3"/>
+      <text x="${x(a)+4}" y="${P.t+12}" font-size="10" fill="${col}" font-weight="600">${lbl}</text>`);};
+  mk(meta.retAge,'Retire','#b8860b'); mk(meta.rmdAge,'RMD','#1d5f9c');
+  rows.filter(r=>r.evts.length).forEach(r=>mk(r.age,r.evts[0].split('—')[0].trim().slice(0,14),'#a4262c'));
+  const xl=[];for(let a=meta.startAge;a<=meta.endAge;a+=10)
+    xl.push(`<text x="${x(a)}" y="${H-8}" text-anchor="middle" font-size="11" fill="#5b6b82">${a}</text>`);
+  return `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Net worth over time">
+    <defs><linearGradient id="g1" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#1d5f9c" stop-opacity=".28"/>
+      <stop offset="1" stop-color="#1d5f9c" stop-opacity=".02"/></linearGradient></defs>
+    ${ticks}<path d="${area}" fill="url(#g1)"/>
+    <path d="${path('y')}" fill="none" stroke="#1d5f9c" stroke-width="2.5"/>
+    <path d="${path('e')}" fill="none" stroke="#0f7b4f" stroke-width="2" stroke-dasharray="5 4"/>
+    ${marks.join('')}${xl.join('')}</svg>
+  <div class="lg"><span><i style="background:#1d5f9c"></i>Net worth</span>
+    <span><i style="background:#0f7b4f"></i>Net to heirs after tax</span>
+    <span><i style="background:#b8860b"></i>Retirement</span>
+    <span><i style="background:#a4262c"></i>Life event</span></div>`;
+}
+function chartTax(rows,meta,real){
+  const W=1000,H=230,P={t:14,r:16,b:28,l:64};
+  const f=r=>real?Math.pow(1+meta.infl,r.age-meta.startAge):1;
+  const keys=[['fed','#1d5f9c','Federal'],['state','#b8860b','State'],
+              ['payroll','#5b6b82','Payroll'],['niit','#0f7b4f','NIIT'],
+              ['amt','#a4262c','AMT'],['irmaa','#8a5a00','IRMAA']];
+  const max=Math.max(...rows.map(r=>r.tax/f(r)),1);
+  const bw=(W-P.l-P.r)/rows.length;
+  const bars=rows.map((r,i)=>{let yy=H-P.b;const X=P.l+i*bw;
+    return keys.map(([k,c])=>{const v=(r[k]||0)/f(r);const h=(v/max)*(H-P.t-P.b);
+      yy-=h;return h>0.4?`<rect x="${X.toFixed(1)}" y="${yy.toFixed(1)}" width="${Math.max(bw-.6,.7).toFixed(1)}" height="${h.toFixed(1)}" fill="${c}"/>`:'';}).join('');
+  }).join('');
+  const ticks=[0,.5,1].map(t=>`<line x1="${P.l}" y1="${H-P.b-t*(H-P.t-P.b)}" x2="${W-P.r}" y2="${H-P.b-t*(H-P.t-P.b)}" stroke="#e2e8f2"/>
+    <text x="${P.l-8}" y="${H-P.b-t*(H-P.t-P.b)+4}" text-anchor="end" font-size="11" fill="#5b6b82">${moneyK(max*t)}</text>`).join('');
+  const xl=[];for(let i=0;i<rows.length;i+=10)
+    xl.push(`<text x="${(P.l+i*bw+bw/2).toFixed(1)}" y="${H-8}" text-anchor="middle" font-size="11" fill="#5b6b82">${rows[i].age}</text>`);
+  return `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Tax by type each year">
+    ${ticks}${bars}${xl.join('')}</svg>
+  <div class="lg">${keys.map(([k,c,l])=>`<span><i style="background:${c}"></i>${l}</span>`).join('')}</div>`;
+}
+function chartBuckets(rows,meta,real){
+  const W=1000,H=230,P={t:14,r:16,b:28,l:64};
+  const f=r=>real?Math.pow(1+meta.infl,r.age-meta.startAge):1;
+  const keys=[['pretax','#12385f','Pre-tax'],['roth','#0f7b4f','Roth'],
+              ['taxable','#1d5f9c','Taxable'],['cv','#b8860b','Insurance CV'],['reEquity','#8a5a00','Real estate']];
+  const tot=r=>keys.reduce((t,[k])=>t+(r[k]||0),0)/f(r);
+  const max=Math.max(...rows.map(tot),1);
+  const x=i=>P.l+i/(rows.length-1)*(W-P.l-P.r);
+  const y=v=>H-P.b-(v/max)*(H-P.t-P.b);
+  let acc=rows.map(()=>0),paths='';
+  keys.forEach(([k,c])=>{
+    const up=rows.map((r,i)=>{acc[i]+=(r[k]||0)/f(r);return acc[i];});
+    const lo=up.map((v,i)=>v-(rows[i][k]||0)/f(rows[i]));
+    paths+=`<path d="${up.map((v,i)=>(i?'L':'M')+x(i).toFixed(1)+' '+y(v).toFixed(1)).join(' ')} ${lo.map((v,i)=>'L'+x(lo.length-1-i).toFixed(1)+' '+y(lo[lo.length-1-i]).toFixed(1)).join(' ')} Z" fill="${c}" opacity=".85"/>`;
+  });
+  const ticks=[0,.5,1].map(t=>`<line x1="${P.l}" y1="${y(max*t)}" x2="${W-P.r}" y2="${y(max*t)}" stroke="#e2e8f2"/>
+    <text x="${P.l-8}" y="${y(max*t)+4}" text-anchor="end" font-size="11" fill="#5b6b82">${moneyK(max*t)}</text>`).join('');
+  const xl=[];for(let i=0;i<rows.length;i+=10)
+    xl.push(`<text x="${x(i).toFixed(1)}" y="${H-8}" text-anchor="middle" font-size="11" fill="#5b6b82">${rows[i].age}</text>`);
+  return `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Where the money sits">
+    ${ticks}${paths}${xl.join('')}</svg>
+  <div class="lg">${keys.map(([k,c,l])=>`<span><i style="background:${c}"></i>${l}</span>`).join('')}</div>`;
+}
 
 /* ==========================================================================
    REVIEW + RESULTS
@@ -1395,6 +1804,10 @@ function runProjection(){
      return `<div class="mile ${a===meta.retAge?'r':''}"><div class="a">Age ${a}</div>
        <div class="ph">${a<meta.retAge?'Accumulation':a<meta.rmdAge?'Pre-RMD window':'Distribution'}</div>
        <div class="v">${moneyK(V(r))}</div></div>`;}).join('')}</div>`;
+
+  h+=`<h3 style="margin-top:20px">Net worth and legacy</h3>${chartLine(R_,meta,showReal)}
+   <h3 style="margin-top:20px">Where the money sits</h3>${chartBuckets(R_,meta,showReal)}
+   <h3 style="margin-top:20px">Tax by type, each year</h3>${chartTax(R_,meta,showReal)}`;
 
   /* findings from the run */
   if(P.notes.length){
@@ -1485,7 +1898,9 @@ function selfTest(){
   add('Gate 2 blocks $30,000',30000,g.sAtRisk);
 
   const pass=T.filter(t=>t.ok).length;
-  $('selftest').innerHTML=`<div class="card"><h3>Engine self-test
+  const host=$('selftest');
+  if(!host)return{pass,total:T.length,T};        // panel is commented out — skip rendering
+  host.innerHTML=`<div class="card"><h3>Engine self-test
     <span class="badge ${pass===T.length?'p':'f'}">${pass}/${T.length} passing</span></h3>
     <p class="lede">These are the hand-checkable test vectors from
       <code>research/10-SOURCES-AND-COMPETITORS.md</code>, run against this page's own engine.
@@ -1545,7 +1960,8 @@ $('fileIn').onchange=e=>{const f=e.target.files[0];if(!f)return;
 if(!load())state={endAge:'90',inflation:'2.5',incomeGrowth:'3',retReturn:'6.5',
   hcInflation:'5',retExpenseFactor:'85',heirRate:'35',reGrowth:'3.5',taxableReturn:'5.75'};
 renderStep();
-selfTest();
+/* selfTest();  — panel hidden from the client form.  Re-enable together with the
+   #selftest div above when you need to verify the engine after a constants update. */
 
 </script>
 </body>
