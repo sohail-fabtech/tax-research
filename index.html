@@ -54,11 +54,8 @@ button:disabled{opacity:.42;cursor:not-allowed;transform:none;filter:none}
 .pbar{height:3px;background:var(--line)} .pbar>i{display:block;height:100%;background:var(--gold);transition:width .3s}
 
 /* ---------- layout ---------- */
-main{width:100%;max-width:1760px;margin:0 auto;padding:22px 26px 70px;display:grid;
-  grid-template-columns:minmax(0,1fr) 360px;gap:22px;align-items:start}
-@media(max-width:1180px){main{grid-template-columns:1fr}}
-@media(min-width:1800px){main{grid-template-columns:minmax(0,1fr) 400px}}
-main>div{min-width:0}          /* let the wizard column shrink instead of overflowing */
+main{width:100%;max-width:1400px;margin:0 auto;padding:22px 26px 70px}
+main>div{min-width:0}
 .hwrap,.pwrap{max-width:1760px;margin:0 auto}
 .card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--sh);padding:20px;margin-bottom:16px}
 .card>h2{display:flex;align-items:center;gap:9px}
@@ -137,30 +134,21 @@ legend{font-size:.8rem;font-weight:620;padding:0 7px;color:var(--brand)}
 .note b{font-weight:640}
 
 /* ---------- static content: everything wraps, nothing overflows ---------- */
-.kpi,.mile,.tst,.note,.fnd,.rep,fieldset{min-width:0;overflow-wrap:anywhere}
+.kpi,.mile,.tst,.note,.rep,fieldset{min-width:0;overflow-wrap:anywhere}
 .kpi .v,.mile .v{font-variant-numeric:tabular-nums;overflow-wrap:normal}
 .miles{scrollbar-width:thin}
 .mile{flex:0 0 140px}
 .tabs{row-gap:2px}
 .tst{flex-wrap:wrap}
 .tst .n{flex:0 0 auto}
-footer p{max-width:100ch;overflow-wrap:anywhere}
 .hsub{overflow-wrap:anywhere}
 .hactions{flex-shrink:0}
 h1,h2,h3,h4{overflow-wrap:anywhere}
 
-/* ---------- findings ---------- */
 .side{position:sticky;top:62px;min-width:0}
 .side>.card:first-child{max-height:calc(100vh - 150px);overflow-y:auto;scrollbar-width:thin}
 @media(max-width:1180px){.side{position:static}
   .side>.card:first-child{max-height:none;overflow:visible}}
-.fnd{padding:9px 11px;border-radius:8px;font-size:.79rem;margin-bottom:7px;border-left:3px solid;line-height:1.45}
-.fnd.i{background:var(--info-bg);border-color:var(--info)}
-.fnd.w{background:var(--warn-bg);border-color:var(--warn)}
-.fnd.b{background:var(--bad-bg);border-color:var(--bad)}
-.fnd.o{background:var(--ok-bg);border-color:var(--ok)}
-.fnd b{display:block;margin-bottom:1px}
-.fnd .src{font-size:.7rem;opacity:.7;margin-top:3px}
 
 /* ---------- nav ---------- */
 .nav{display:flex;gap:10px;align-items:center;margin-top:8px;flex-wrap:wrap;row-gap:8px}
@@ -222,13 +210,7 @@ tr.ret td{border-top:2px solid var(--gold)}
 .ring.part::after{content:'';position:absolute;inset:1px;border-radius:50%;
   background:conic-gradient(currentColor var(--p,0%),transparent 0)}
 
-/* ---------- findings ---------- */
-.fgrp{margin-bottom:12px}
-.fgrp>h5{font-size:.7rem;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);margin:0 0 5px}
-.fcount{display:inline-flex;align-items:center;justify-content:center;min-width:19px;height:19px;
-  border-radius:20px;background:var(--brand);color:#fff;font-size:.68rem;font-weight:650;padding:0 6px;margin-left:auto}
-.fnd{display:grid;grid-template-columns:16px 1fr;gap:8px}
-.fnd .ic{font-size:.9rem;line-height:1.3}
+/* ---------- notes ---------- */
 
 /* ---------- charts ---------- */
 .chart{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--line);border-radius:9px}
@@ -251,10 +233,9 @@ tr.ret td{border-top:2px solid var(--gold)}
 .toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;
   padding:9px 18px;border-radius:8px;font-size:.84rem;z-index:99;opacity:0;transition:.25s;pointer-events:none}
 .toast.on{opacity:1}
-footer{width:100%;padding:0 26px 44px;color:var(--muted);font-size:.78rem}
 
 @media print{
-  header,.prog,.side,.nav,.hactions,#selftest,.tabs{display:none!important}
+  header,.prog,.nav,.hactions,#selftest,.tabs{display:none!important}
   main{grid-template-columns:1fr;padding:0;max-width:none}
   .grid{grid-template-columns:repeat(2,minmax(0,1fr))}
   .tw{overflow:visible}
@@ -270,15 +251,11 @@ footer{width:100%;padding:0 26px 44px;color:var(--muted);font-size:.78rem}
     <div>
       <div class="tag">Your Tax Line™ Wealth Engineering</div>
       <h1>Roadmap to Age 90™</h1>
-      <p class="hsub">Client intake and lifetime projection. Thirteen modules, then a year-by-year
-        federal and state projection to age 90 or 100.</p>
+      <p class="hsub">Client intake and lifetime projection to age 90 or 100.</p>
     </div>
     <div class="hactions">
-      <button class="btn-ghost btn-sm" id="btnImport">Import JSON</button>
-      <button class="btn-ghost btn-sm" id="btnExport">Export JSON</button>
       <button class="btn-ghost btn-sm" id="btnDemo">Load demo</button>
       <button class="btn-ghost btn-sm" id="btnReset">Reset</button>
-      <input type="file" id="fileIn" accept="application/json" class="hide">
     </div>
   </div>
 </header>
@@ -298,35 +275,11 @@ footer{width:100%;padding:0 26px 44px;color:var(--muted);font-size:.78rem}
       <span class="sp" id="navInfo"></span>
     </div>
     <div id="results"></div>
-    <!-- Engine self-test panel — hidden from the client-facing form.
-         The selfTest() function below still exists and still works; to show the panel
-         again, uncomment this div and the selfTest() call at the end of the script.
-         Run it whenever the 2026 constants are refreshed. -->
     <!-- <div id="selftest"></div> -->
   </div>
 
-  <aside class="side">
-    <div class="card">
-      <h3 style="margin-bottom:8px;display:flex;align-items:center;gap:8px">Live findings
-        <span class="fcount" id="fndCount">0</span></h3>
-      <p class="lede" style="margin:0 0 10px;font-size:.78rem">
-        Updates as you type. Each one cites the rule it comes from.</p>
-      <div id="findings"><div class="fnd i">Start filling in Module 0 — findings appear here.</div></div>
-    </div>
-    <div class="card">
-      <h4>Saved automatically</h4>
-      <small id="saveInfo">Nothing saved yet.</small>
-    </div>
-  </aside>
 </main>
 
-<footer>
-  <p><b>Planning projection only — not a tax return, not filing advice.</b>
-  All 2026 figures come from IRS Rev. Proc. 2025-32, IRS Notice 2025-67, IRS Publication 590-B,
-  Federal Register 2025-19763 and the CMS 2026 premium fact sheet. Full citations and the
-  hand-checkable test vectors are in <code>research/10-SOURCES-AND-COMPETITORS.md</code>.
-  Constants change every autumn — check the maintenance calendar before relying on this in a later year.</p>
-</footer>
 
 <div class="toast" id="toast"></div>
 
@@ -488,6 +441,13 @@ const PH={
  rentIncome:'145,000', expenses:'85,000', segPct5:'15', segPct15:'10',
  accumDep:'0', suspPassive:'0', basis:'1,200,000', atRisk:'1,200,000',
  sellAge:'leave blank to hold',
+ strategyName:'Cost segregation study', federalTaxSavings:'145,000', stateTaxSavings:'43,000',
+ investmentAmount:'0', startYear:'2026', endYear:'2035',
+ taxSavings:'188,000', totalTax:'420,000', dwcPercent:'20', qualifiedDeductionBase:'420,000',
+ cashOnHand:'176,000', currentRealEstateValue:'440,000', adminFeeCost:'0.5',
+ costOfInvestment:'0.4', taxPlanYear:'2026', strategyEffectiveness:'100',
+ bucketRetirement:'35', bucketInsurance:'25', bucketRealestate:'25',
+ bucketLiquidity:'10', bucketLegacy:'3', bucketDisabilityLtc:'2',
  reGrowth:'3.5',
  name:'Harbor Partners LP', biz:'Multifamily real estate', ownPct:'10',
  ordinary:'-120,000', rental:'0', portfolio:'4,500', capGain:'0',
@@ -514,45 +474,35 @@ function placeholderFor(f){
 }
 
 const SCHEMA=[
-{id:'m0',n:'Engagement & scope',lede:'Who you are, where you live and how much risk you want. These answers set every bracket, deduction and state rule used below.',
+{id:'m0',n:'Engagement & scope',lede:'Basic details about you and your household.',
  fields:[
   {k:'clientName',l:'Your full name',t:'text'},
-  {k:'dob',l:'Your date of birth',t:'date',req:1,h:'Sets your RMD age and every age-based limit'},
+  {k:'dob',l:'Your date of birth',t:'date',req:1,h:'Sets your withdrawal age and other age-based limits'},
   {k:'filingStatus',l:'Filing status',t:'select',req:1,o:[['','—'],['single','Single'],['mfj','Married filing jointly'],['mfs','Married filing separately'],['hoh','Head of household'],['qss','Qualifying surviving spouse']]},
   {k:'spouseName',l:"Spouse's name",t:'text',show:s=>['mfj','mfs','qss'].includes(s.filingStatus)},
   {k:'spouseDob',l:"Spouse's date of birth",t:'date',show:s=>['mfj','mfs','qss'].includes(s.filingStatus)},
   {k:'state',l:'State of residence',t:'select',req:1,o:stOpts},
-  {k:'city',l:'City',t:'text'},
-  {k:'willMove',l:'Do you expect to move to another state?',t:'select',o:YN},
-  {k:'moveState',l:'Move to which state?',t:'select',o:stOpts,show:s=>s.willMove==='y'},
-  {k:'moveAge',l:'At what age?',t:'num',show:s=>s.willMove==='y'},
-  {k:'usPerson',l:'US citizen or resident alien for tax?',t:'select',o:YN,req:1},
-  {k:'risk',l:'Planning posture',t:'select',req:1,o:[['','—'],['cons','Conservative — very safe'],['bal','Balanced'],['agg','Aggressive — more risk, more potential saving']]},
   {k:'endAge',l:'Project to age',t:'select',o:[['90','90'],['100','100']],h:'The roadmap runs to 90 by default'}
  ]},
 
-{id:'m1',n:'Personal & family',lede:'Your household. Birth year decides your RMD age; dependents decide whether a survivor keeps married-equivalent brackets.',
+{id:'m1',n:'Personal & family',lede:'Your family and when you plan to retire.',
  fields:[
-  {k:'dependents',l:'Number of dependents you support',t:'num'},
-  {k:'depAges',l:'Ages of dependents',t:'text',h:'Comma separated',show:s=>+s.dependents>0},
-  {k:'hasDepChild',l:'Is any dependent a qualifying CHILD living with you?',t:'select',o:YN,show:s=>+s.dependents>0,h:'Decides whether a survivor gets Qualifying Surviving Spouse status'},
-  {k:'disability',l:'Anyone in the household disabled or with special medical needs?',t:'select',o:YN},
+  {k:'hasDepChild',l:'Is any dependent a qualifying CHILD living with you?',t:'select',o:YN,h:'Affects the tax status of a surviving spouse'},
   {k:'retireAge',l:'Age you plan to fully retire',t:'num',req:1},
   {k:'workPartTime',l:'Will you work part-time after retiring?',t:'select',o:YN},
   {k:'ptIncome',l:'Expected part-time income (per year)',t:'money',show:s=>s.workPartTime==='y'},
   {k:'ptUntilAge',l:'Part-time until age',t:'num',show:s=>s.workPartTime==='y'}
  ]},
 
-{id:'m2',n:'Income, work & business',lede:'Earned income and business structure. Whether your business is an SSTB decides if you keep the 20% QBI deduction at high income.',
+{id:'m2',n:'Income, work & business',lede:'What you earn and how your business is set up.',
  fields:[
-  {k:'workType',l:'Are you an employee, business owner, or both?',t:'select',req:1,o:[['','—'],['emp','Employee'],['own','Business owner'],['both','Both'],['ret','Already retired']]},
-  {k:'w2',l:'Your annual W-2 wages',t:'money',show:s=>['emp','both'].includes(s.workType)},
+  {k:'w2',l:'Your annual W-2 wages',t:'money'},
   {k:'spouseW2',l:"Spouse's W-2 wages",t:'money',show:s=>['mfj','mfs'].includes(s.filingStatus)},
-  {k:'bonusComp',l:'Bonuses, RSUs, other compensation (per year)',t:'money',show:s=>['emp','both'].includes(s.workType)},
-  {k:'isoSpread',l:'ISO exercise bargain element this year',t:'money',show:s=>['emp','both'].includes(s.workType),h:'Held past 31 Dec — this is an AMT preference item'},
-  {k:'entity',l:'Business entity type',t:'select',show:s=>['own','both'].includes(s.workType),
+  {k:'bonusComp',l:'Bonuses, RSUs, other compensation (per year)',t:'money'},
+  {k:'isoSpread',l:'ISO exercise bargain element this year',t:'money',h:'Only if you still held the shares at year end'},
+  {k:'entity',l:'Business entity type',t:'select',
     o:[['','—'],['sole','Sole proprietor (Schedule C)'],['part','Partnership / LLC (1065 K-1)'],['scorp','S-corporation (1120-S K-1)'],['ccorp','C-corporation']]},
-  {k:'bizField',l:'What does the business do?',t:'select',show:s=>['own','both'].includes(s.workType),req:1,
+  {k:'bizField',l:'What does the business do?',t:'select',req:1,
     o:[['','—'],
        ['health','Health — physician, dentist, nurse, vet, therapist (SSTB)'],
        ['law','Law (SSTB)'],['accounting','Accounting (SSTB)'],['actuarial','Actuarial science (SSTB)'],
@@ -567,45 +517,39 @@ const SCHEMA=[
        ['restaurant','Restaurant / hospitality (NOT an SSTB)'],['transport','Transport (NOT an SSTB)'],
        ['insurance_agency','Insurance agency (NOT an SSTB)'],['farming','Farming (NOT an SSTB)'],
        ['other','Other (NOT an SSTB)']]},
-  {k:'bizProfit',l:'Annual business profit (negative for a loss)',t:'money',show:s=>['own','both'].includes(s.workType)},
-  {k:'bizW2',l:'W-2 wages the business pays (all employees)',t:'money',show:s=>['own','both'].includes(s.workType),h:'Used by the §199A wage limit above the threshold'},
-  {k:'bizUBIA',l:'Unadjusted basis of qualified business property',t:'money',show:s=>['own','both'].includes(s.workType)},
-  {k:'bizMP',l:'Do you materially participate in the business?',t:'select',o:YN,show:s=>['own','both'].includes(s.workType)},
-  {k:'bizHours',l:'Hours per year in the business',t:'num',show:s=>['own','both'].includes(s.workType)},
+  {k:'bizProfit',l:'Annual business profit (negative for a loss)',t:'money'},
+  {k:'bizW2',l:'W-2 wages the business pays (all employees)',t:'money',h:'Used to work out your business deduction at higher incomes'},
+  {k:'bizUBIA',l:'Unadjusted basis of qualified business property',t:'money'},
   {k:'incomeGrowth',l:'Assumed annual income growth',t:'pct',h:'Default 3%'},
   {k:'otherIncome',l:'Other income — royalties, side gigs (per year)',t:'money'}
  ]},
 
-{id:'m3',n:'Retirement accounts',lede:'One row per account. The age 60–63 catch-up REPLACES the age-50 catch-up — it never stacks.',
+{id:'m3',n:'Retirement accounts',lede:'Your retirement accounts and how much you put in each year.',
  rep:{key:'accounts',label:'account',
   fields:[
    {k:'type',l:'Account type',t:'select',o:[['','—'],['t401k','Traditional 401(k)'],['r401k','Roth 401(k)'],['tira','Traditional IRA'],['rira','Roth IRA'],['sep','SEP IRA'],['simple','SIMPLE IRA'],['t403b','403(b)'],['t457','457(b)'],['hsa','HSA']]},
    {k:'balance',l:'Current balance',t:'money'},
    {k:'contrib',l:'Your annual contribution',t:'money'},
    {k:'employerMatch',l:'Employer contribution per year',t:'money'},
-   {k:'loan',l:'Outstanding plan loan',t:'money'}
   ]},
  fields:[
-  {k:'priorYearWages',l:'Prior-year wages from the plan sponsor',t:'money',h:'Above $150,000 the catch-up MUST be Roth from 2026 — SECURE 2.0 §603'},
-  {k:'planAllowsRoth',l:'Does the employer plan allow Roth contributions?',t:'select',o:YN},
+  {k:'priorYearWages',l:'Prior-year wages from the plan sponsor',t:'money',h:'Above $150,000 your catch-up contribution has to be Roth'},
   {k:'contribStrategy',l:'Contribution strategy',t:'select',o:[['','—'],['pretax','Maximise pre-tax'],['roth','Maximise Roth'],['split','Split between both']]},
   {k:'retReturn',l:'Assumed return on retirement accounts',t:'pct',h:'Default 6.5% nominal'},
-  {k:'advisoryFee',l:'Advisory + fund fees',t:'pct',h:'Subtracted from the return'}
+  {k:'advisoryFee',l:'Advisory + fund fees',t:'pct',h:'Reduces your net investment return'}
  ]},
 
-{id:'m4',n:'Social Security',lede:'The claiming decision is permanent. A survivor keeps the HIGHER of two benefits, never both.',
+{id:'m4',n:'Social Security',lede:'Your Social Security benefit and when you plan to claim it.',
  fields:[
   {k:'ssSource',l:'How should we get your benefit?',t:'select',req:1,o:[['','—'],['stmt','From my SSA statement (most accurate)'],['calc','Estimate it from my earnings']]},
   {k:'ssAtFRA',l:'Monthly benefit at full retirement age',t:'money',show:s=>s.ssSource==='stmt',h:'From your SSA statement'},
-  {k:'aime',l:'Average Indexed Monthly Earnings (AIME)',t:'money',show:s=>s.ssSource==='calc',h:'Highest 35 indexed years ÷ 420. Leave blank to estimate from income'},
+  {k:'aime',l:'Average Indexed Monthly Earnings (AIME)',t:'money',show:s=>s.ssSource==='calc',h:'Leave blank and we will estimate it from your income'},
   {k:'ssClaimAge',l:'Age you intend to claim',t:'select',o:[['','—'],['62','62'],['63','63'],['64','64'],['65','65'],['66','66'],['67','67 (FRA)'],['68','68'],['69','69'],['70','70 (maximum)']]},
   {k:'spouseSsAtFRA',l:"Spouse's monthly benefit at FRA",t:'money',show:s=>['mfj','mfs','qss'].includes(s.filingStatus)},
   {k:'spouseClaimAge',l:"Spouse's claiming age",t:'num',show:s=>['mfj','mfs','qss'].includes(s.filingStatus)},
-  {k:'workWhileClaiming',l:'Will you work while claiming before FRA?',t:'select',o:YN},
-  {k:'exSpouse',l:'Were you married 10+ years to a former spouse?',t:'select',o:YN,h:'May qualify you for an ex-spouse benefit if currently unmarried and 62+'}
  ]},
 
-{id:'m5',n:'Real estate',lede:'The highest-variance module. Average stay length and hours worked decide whether a loss offsets your salary or waits a decade.',
+{id:'m5',n:'Real estate',lede:'Each property you own or rent out. Add one card per property.',
  rep:{key:'props',label:'property',
   fields:[
    {k:'label',l:'Property name or address',t:'text'},
@@ -617,48 +561,45 @@ const SCHEMA=[
    {k:'mortBal',l:'Mortgage balance',t:'money'},
    {k:'mortRate',l:'Mortgage interest rate',t:'pct'},
    {k:'mortTerm',l:'Months remaining on the loan',t:'num'},
-   {k:'loanKind',l:'Loan type',t:'select',o:[['','—'],['bank','Bank / commercial lender (qualified nonrecourse)'],['seller','Seller or related-party financing'],['recourse','Personally guaranteed / recourse'],['none','No loan']],h:'Decides whether the debt counts toward at-risk under §465(b)(6)'},
+   {k:'loanKind',l:'Loan type',t:'select',o:[['','—'],['bank','Bank / commercial lender (qualified nonrecourse)'],['seller','Seller or related-party financing'],['recourse','Personally guaranteed / recourse'],['none','No loan']],h:'Bank lending counts toward your at-risk amount; seller financing does not'},
    {k:'rentType',l:'How is it let?',t:'select',o:[['','—'],['ltr','Long-term (leases)'],['str','Short-term (Airbnb / VRBO)'],['none','Not rented']]},
-   {k:'avgStay',l:'Average length of each guest stay (days)',t:'num',show:s=>s.rentType==='str',h:'7 days or fewer means it is NOT a rental activity under §469'},
+   {k:'avgStay',l:'Average length of each guest stay (days)',t:'num',show:s=>s.rentType==='str',h:'Stays of 7 days or fewer change how the loss can be used'},
    {k:'daysRented',l:'Days per year rented at market rate',t:'num',show:s=>s.rentType!=='none'&&s.rentType},
-   {k:'personalDays',l:'Days per year you or family use it',t:'num',h:'§280A: more than the greater of 14 days or 10% of rental days caps your deductions'},
+   {k:'personalDays',l:'Days per year you or family use it',t:'num',h:'Too much personal use limits what you can deduct'},
    {k:'selfManaged',l:'Do you manage it yourself?',t:'select',o:YN},
-   {k:'hours',l:'Your hours per year on this property',t:'num',h:'Material participation: >100 hrs and more than anyone else usually qualifies'},
+   {k:'hours',l:'Your hours per year on this property',t:'num',h:'More than 100 hours, and more than anyone else, usually qualifies'},
    {k:'otherHours',l:'Hours anyone else (manager) spends',t:'num'},
-   {k:'substantialSvc',l:'Do you provide hotel-like services (daily cleaning, meals)?',t:'select',o:YN,show:s=>s.rentType==='str',h:'Decides Schedule C + self-employment tax, separately from the 7-day test'},
+   {k:'substantialSvc',l:'Do you provide hotel-like services (daily cleaning, meals)?',t:'select',o:YN,show:s=>s.rentType==='str',h:'Hotel-like services can add self-employment tax'},
    {k:'rentIncome',l:'Annual rental income',t:'money'},
    {k:'expenses',l:'Annual expenses excluding depreciation',t:'money'},
    {k:'costSeg',l:'Cost segregation study done?',t:'select',o:YN},
    {k:'segPct5',l:'% reclassified to 5-year property',t:'pct',show:s=>s.costSeg==='y'},
    {k:'segPct15',l:'% reclassified to 15-year property',t:'pct',show:s=>s.costSeg==='y'},
-   {k:'accumDep',l:'Depreciation taken so far',t:'money',h:'Drives the 25% recapture on sale'},
+   {k:'accumDep',l:'Depreciation taken so far',t:'money',h:'Affects the tax when you sell'},
    {k:'suspPassive',l:'Suspended passive losses carried in',t:'money'},
    {k:'basis',l:'Your tax basis in the property',t:'money'},
    {k:'atRisk',l:'Your at-risk amount',t:'money'},
    {k:'sellAge',l:'Age you plan to sell (blank = hold to death)',t:'num'}
   ]},
  fields:[
-  {k:'reps',l:'Do you or your spouse qualify as a real estate professional?',t:'select',o:YN,h:'More than 750 hours AND more than half of all personal services in real property trades'},
-  {k:'repsAgg',l:'Have you made the §1.469-9(g) aggregation election?',t:'select',o:YN,show:s=>s.reps==='y',h:'Without it, material participation is tested property by property'},
+  {k:'reps',l:'Do you or your spouse work in property full time?',t:'select',o:YN,h:'More than 750 hours AND more than half of all personal services in real property trades'},
+  {k:'repsAgg',l:'Have you elected to group all your rentals as one activity?',t:'select',o:YN,show:s=>s.reps==='y',h:'Without it, each property is tested on its own'},
   {k:'reGrowth',l:'Assumed property appreciation',t:'pct',h:'Default 3.5% nominal'}
  ]},
 
-{id:'m6',n:'K-1s & investments',lede:'Every K-1 loss must pass four gates in order: basis → at-risk → passive → excess business loss.',
+{id:'m6',n:'K-1s & investments',lede:'Partnership and S-corp interests, and your taxable investment accounts.',
  rep:{key:'k1s',label:'K-1 / entity',
   fields:[
    {k:'name',l:'Entity name',t:'text'},
    {k:'etype',l:'Entity type',t:'select',o:[['','—'],['part','Partnership / LLC (1065)'],['scorp','S-corporation (1120-S)']]},
-   {k:'biz',l:'What the business does',t:'text'},
-   {k:'ownPct',l:'Your ownership %',t:'pct'},
    {k:'ordinary',l:'Your share of ordinary income (negative = loss)',t:'money'},
    {k:'rental',l:'Your share of rental income / loss',t:'money'},
    {k:'portfolio',l:'Your share of interest, dividends, royalties',t:'money'},
    {k:'capGain',l:'Your share of capital gain / loss',t:'money'},
    {k:'basis',l:'Your outside basis / stock basis',t:'money'},
-   {k:'debtBasis',l:'Direct loans YOU made to the entity',t:'money',show:s=>s.etype==='scorp',h:'S-corp: only your own loans create basis. Company debt does NOT'},
-   {k:'shareDebt',l:'Your share of entity liabilities',t:'money',show:s=>s.etype==='part',h:'Partnership: your share of debt DOES add to basis under §752'},
+   {k:'debtBasis',l:'Direct loans YOU made to the entity',t:'money',show:s=>s.etype==='scorp',h:'Only loans you personally made count'},
+   {k:'shareDebt',l:'Your share of entity liabilities',t:'money',show:s=>s.etype==='part',h:'Your share of partnership debt adds to your basis'},
    {k:'atRisk',l:'Your at-risk amount',t:'money'},
-   {k:'guaranteed',l:'Did you personally guarantee entity debt?',t:'select',o:YN,h:'A guarantee creates no basis until you actually pay'},
    {k:'mp',l:'Do you materially participate?',t:'select',o:YN},
    {k:'suspBasis',l:'Suspended basis losses carried in',t:'money'},
    {k:'suspAtRisk',l:'Suspended at-risk losses carried in',t:'money'},
@@ -671,12 +612,12 @@ const SCHEMA=[
   {k:'taxableReturn',l:'Assumed return on taxable accounts',t:'pct',h:'Default 5.75%'},
   {k:'capLossST',l:'Short-term capital loss carryforward',t:'money'},
   {k:'capLossLT',l:'Long-term capital loss carryforward',t:'money'},
-  {k:'nol',l:'NOL carryforward',t:'money',h:'Can offset only 80% of income in any later year'},
+  {k:'nol',l:'NOL carryforward',t:'money',h:'Can offset up to 80% of income in a later year'},
   {k:'negQBI',l:'Negative QBI carryforward',t:'money'},
   {k:'amtCredit',l:'Minimum tax credit carryforward',t:'money'}
  ]},
 
-{id:'m7',n:'Insurance & estate',lede:'Who owns a policy decides whether 40% of the death benefit goes to the IRS. Net worth is not legacy.',
+{id:'m7',n:'Insurance & estate',lede:'Life insurance policies and what you want to leave behind.',
  rep:{key:'policies',label:'policy',
   fields:[
    {k:'ptype',l:'Policy type',t:'select',o:[['','—'],['term','Term'],['whole','Whole life'],['ul','Universal life'],['iul','Indexed universal life'],['vul','Variable universal life']]},
@@ -687,79 +628,103 @@ const SCHEMA=[
    {k:'loanBal',l:'Outstanding policy loan',t:'money'},
    {k:'loanRate',l:'Policy loan interest rate',t:'pct'},
    {k:'creditRate',l:'Assumed credited rate',t:'pct'},
-   {k:'owner',l:'Who owns the policy?',t:'select',o:[['','—'],['self','Me personally'],['spouse','My spouse'],['ilit','An irrevocable trust (ILIT)'],['other','Someone else']],h:'Personally owned = in your taxable estate under §2042'},
-   {k:'transferred3yr',l:'Transferred into a trust within the last 3 years?',t:'select',o:YN,h:'§2035 pulls it back into the estate'},
-   {k:'isMEC',l:'Is the policy a MEC?',t:'select',o:YN,h:'If yes, loans are taxable LIFO — permanently'},
+   {k:'owner',l:'Who owns the policy?',t:'select',o:[['','—'],['self','Me personally'],['spouse','My spouse'],['ilit','An irrevocable trust (ILIT)'],['other','Someone else']],h:'A personally owned policy counts toward your estate'},
+   {k:'transferred3yr',l:'Transferred into a trust within the last 3 years?',t:'select',o:YN,h:'A recent transfer still counts toward your estate'},
+   {k:'isMEC',l:'Is the policy a MEC?',t:'select',o:YN,h:'If yes, loans from the policy become taxable'},
    {k:'planLoans',l:'Annual loan you plan to take in retirement',t:'money'}
   ]},
  fields:[
-  {k:'hasWill',l:'Do you have a will?',t:'select',o:YN},
-  {k:'hasRLT',l:'Revocable living trust?',t:'select',o:YN},
-  {k:'hasILIT',l:'Any irrevocable trust (ILIT, SLAT, QPRT)?',t:'select',o:YN},
-  {k:'benefsCurrent',l:'Are all beneficiary designations current?',t:'select',o:YN},
   {k:'otherAssets',l:'Other assets not listed elsewhere',t:'money',h:'Personal property, collectibles, cash'},
   {k:'debts',l:'Total debts other than mortgages',t:'money'},
   {k:'priorGifts',l:'Lifetime taxable gifts already made',t:'money'},
-  {k:'dsue',l:'Deceased spousal unused exclusion (DSUE) available',t:'money',h:'Only if Form 706 was filed for the first death'},
+  {k:'dsue',l:'Deceased spousal unused exclusion (DSUE) available',t:'money',h:'Only if a return was filed after the first death'},
   {k:'heirRate',l:"Heirs' assumed marginal tax rate",t:'pct',h:'Default 35% — used for the income tax on inherited retirement accounts'}
  ]},
 
-{id:'m8',n:'Healthcare & Medicare',lede:'IRMAA uses your income from TWO YEARS ago. A one-time spike cannot be appealed.',
+{id:'m8',n:'Healthcare & Medicare',lede:'Living costs, medical costs, and long-term care if you want it modelled.',
  fields:[
-  {k:'coverage',l:'Current health coverage',t:'select',o:[['','—'],['employer','Employer plan'],['marketplace','Marketplace'],['medicare','Medicare'],['medicaid','Medicaid'],['none','None']]},
   {k:'monthlyMedical',l:'Monthly medical premiums and out-of-pocket',t:'money'},
-  {k:'hcInflation',l:'Assumed healthcare inflation',t:'pct',h:'Default 5% — roughly double general inflation'},
+  {k:'hcInflation',l:'Assumed healthcare inflation',t:'pct',h:'Medical costs usually rise faster than general inflation'},
   {k:'ltcPremium',l:'Qualified long-term care insurance premium (per year)',t:'money'},
   {k:'expectLTC',l:'Should we model a long-term care period?',t:'select',o:YN},
   {k:'ltcStartAge',l:'Assumed age care begins',t:'num',show:s=>s.expectLTC==='y'},
   {k:'ltcYears',l:'Assumed years of care',t:'num',show:s=>s.expectLTC==='y'},
-  {k:'ltcAnnualCost',l:'Assumed annual care cost',t:'money',show:s=>s.expectLTC==='y',h:'US median runs roughly $75,000–$150,000 depending on level and state'},
+  {k:'ltcAnnualCost',l:'Assumed annual care cost',t:'money',show:s=>s.expectLTC==='y',h:'Typically $75,000 to $150,000 a year'},
   {k:'itemize',l:'Do you itemise deductions?',t:'select',o:YN},
   {k:'monthlyExpenses',l:'Monthly lifestyle expenses (excluding medical)',t:'money',req:1},
   {k:'inflation',l:'General inflation assumption',t:'pct',h:'Default 2.5%'},
-  {k:'retExpenseFactor',l:'Retirement expense factor',t:'pct',h:'Default 85% — work costs disappear'}
+  {k:'retExpenseFactor',l:'Retirement expense factor',t:'pct',h:'Work costs disappear, so spending usually drops'}
  ]},
 
-{id:'m9',n:'State & local',lede:'A dozen states plus DC levy their own estate tax, some starting near $1M. Oregon and New York are the sharpest.',
- fields:[
-  {k:'otherStates',l:'Other states where you own property or run a business',t:'text',h:'Comma separated — may create nonresident filings'},
-  {k:'daysOtherState',l:'Days per year spent outside your home state',t:'num',h:'Over ~183 days can create dual residency'},
-  {k:'stateNote',l:'Anything else about your state situation',t:'textarea',w:1}
- ]},
 
-{id:'m10',n:'Life events to model',lede:'The plan runs 48 years. Model what may actually happen, not one unchanging household.',
+{id:'m9',n:'Life events to model',lede:'Things that may change during retirement and that you want included.',
  fields:[
-  {k:'modelDeath',l:'Model the death of a spouse?',t:'select',o:YN,h:'The form itself calls this "Protect income + spouse" at age 80'},
+  {k:'modelDeath',l:'Model the death of a spouse?',t:'select',o:YN,h:'Models what happens to income and tax for the survivor'},
   {k:'deathAge',l:'Your age when the first death occurs',t:'num',show:s=>s.modelDeath==='y'},
-  {k:'whoDies',l:'Who dies first?',t:'select',o:[['','—'],['spouse','My spouse'],['self','Me']],show:s=>s.modelDeath==='y'},
-  {k:'survivorFactor',l:'Survivor expense factor',t:'pct',show:s=>s.modelDeath==='y',h:'Default 75% — the house and its costs remain'},
+  {k:'survivorFactor',l:'Survivor expense factor',t:'pct',show:s=>s.modelDeath==='y',h:'The house and its running costs remain'},
   {k:'modelWindfall',l:'Model a one-time windfall (business sale, inheritance)?',t:'select',o:YN},
   {k:'windfallAge',l:'Your age at the windfall',t:'num',show:s=>s.modelWindfall==='y'},
   {k:'windfallAmt',l:'Amount',t:'money',show:s=>s.modelWindfall==='y'},
   {k:'windfallBasis',l:'Your basis in what is sold',t:'money',show:s=>s.modelWindfall==='y'},
-  {k:'windfallQSBS',l:'Does it qualify for §1202 QSBS exclusion?',t:'select',o:YN,show:s=>s.modelWindfall==='y',h:'Excluded gain never enters AGI, so it does NOT raise IRMAA'},
+  {k:'windfallQSBS',l:'Does it qualify for the small business stock exclusion?',t:'select',o:YN,show:s=>s.modelWindfall==='y',h:'Qualifying gain does not raise your Medicare premium'},
   {k:'modelDivorce',l:'Model a divorce?',t:'select',o:YN},
   {k:'divorceAge',l:'Your age at divorce',t:'num',show:s=>s.modelDivorce==='y'},
-  {k:'rothConv',l:'Model annual Roth conversions in the pre-RMD window?',t:'select',o:YN,h:'Between retirement and RMD age the brackets are often nearly empty'},
+  {k:'rothConv',l:'Model annual Roth conversions before withdrawals start?',t:'select',o:YN,h:'The years before withdrawals start are usually the cheapest to convert'},
   {k:'rothConvAmt',l:'Annual conversion amount',t:'money',show:s=>s.rothConv==='y'}
  ]},
 
-{id:'m11',n:'Documentation & controls',lede:'In an audit the question is not only what you did but whether you can prove it.',
+
+{id:'m10',n:'Tax savings & Deployable Wealth Capital',lede:'Approved tax savings and how they are deployed across your capital buckets.',
+ rep:{key:'strategies',label:'approved strategy',
+  fields:[
+   {k:'strategyName',l:'Strategy name',t:'text'},
+   {k:'federalTaxSavings',l:'Federal tax savings (per year)',t:'money'},
+   {k:'stateTaxSavings',l:'State tax savings (per year)',t:'money'},
+   {k:'investmentAmount',l:'Investment required',t:'money'},
+   {k:'startYear',l:'Start year',t:'num'},
+   {k:'endYear',l:'End year',t:'num'}
+  ]},
  fields:[
-  {k:'docTimeLogs',l:'Will you keep contemporaneous time logs for real estate?',t:'select',o:YN,h:'Hailstock (T.C. Memo. 2016-146) accepted a narrative summary, but only because the facts were exceptional'},
-  {k:'docBookings',l:'Will you keep booking records for short-term rentals?',t:'select',o:YN},
-  {k:'docCostSeg',l:'Will you keep the cost segregation study and invoices?',t:'select',o:YN,h:'AmeriSouth XXXII (T.C. Memo. 2012-67) lost most of a study for weak support'},
-  {k:'docInsurance',l:'Will you keep annual policy illustrations and loan statements?',t:'select',o:YN},
-  {k:'docEstate',l:'Will you review beneficiaries and estate documents annually?',t:'select',o:YN},
-  {k:'docBasis',l:'Will you track basis and at-risk amounts per activity?',t:'select',o:YN}
+  {k:'taxSavings',l:'Total approved net tax savings (per year)',t:'money',
+   h:'Use this if you have not listed strategies above'},
+  {k:'totalTax',l:'Total tax liability before strategies',t:'money',
+   h:'Used to show how much of your tax is protected'},
+  {k:'dwcPercent',l:'Deployable Wealth Capital %',t:'pct',
+   h:'Typically 15–25%'},
+  {k:'qualifiedDeductionBase',l:'Qualified deduction base',t:'money',
+   h:'Used with the percentage above to work out yearly deployable capital'},
+  {k:'cashOnHand',l:'Cash on hand',t:'money',h:'Seeds the liquidity bucket'},
+  {k:'currentRealEstateValue',l:'Current real estate value',t:'money',h:'Seeds the real estate bucket'},
+  {k:'adminFeeCost',l:'Admin fee cost',t:'pct',h:'Subtracted from returns as cost drag'},
+  {k:'costOfInvestment',l:'Cost of investment',t:'pct',h:'Subtracted from returns as cost drag'},
+  {k:'taxPlanYear',l:'Tax plan year',t:'num'},
+  {k:'bucketRetirement',l:'Bucket — 401(k) / Cash balance / Roth',t:'pct'},
+  {k:'bucketInsurance',l:'Bucket — Life insurance cash value',t:'pct'},
+  {k:'bucketRealestate',l:'Bucket — Real estate / business',t:'pct'},
+  {k:'bucketLiquidity',l:'Bucket — Liquidity reserve',t:'pct'},
+  {k:'bucketLegacy',l:'Bucket — Legacy / trust / philanthropy',t:'pct'},
+  {k:'bucketDisabilityLtc',l:'Bucket — Disability / LTC protection',t:'pct'},
+  {k:'scenario',l:'Scenario to project',t:'select',
+   o:[['expected','Expected — 3% income, 7% return, 5% real estate'],
+      ['conservative','Conservative — 2% income, 5% return, 3.5% real estate, 80% effective'],
+      ['accelerated','Accelerated — 4% income, 9% return, 6.5% real estate, 125% effective']],
+   h:'Choose the growth assumptions to project'},
+  {k:'strategyEffectiveness',l:'Strategy effectiveness',t:'pct',
+   h:'How much of the saving you expect to actually achieve'}
  ]},
 
-{id:'m12',n:'Review & run',lede:'Check the summary, then run the projection.',fields:[],review:1}
+{id:'m11',n:'Review & run',lede:'Check your details, then run the projection.',fields:[],review:1}
 ];
 /* ==========================================================================
    PART C — ENGINE.  Implements the 22-step year loop from research/MASTER-GUIDE.md
    Computed NOMINAL throughout; deflated once at step 20.
    ========================================================================== */
+/* Scenario presets — identical to PRESET_SCENARIOS in tax-be/src/controllers/taxRoadmapController.js */
+const SCENARIOS={
+  conservative:{incomeGrowth:2.0, retirementReturn:5.0, realEstateReturn:3.5, inflation:0,  strategyEffectiveness:80},
+  expected:    {incomeGrowth:3.0, retirementReturn:7.0, realEstateReturn:5.0, inflation:3,  strategyEffectiveness:100},
+  accelerated: {incomeGrowth:4.0, retirementReturn:9.0, realEstateReturn:6.5, inflation:0,  strategyEffectiveness:125}
+};
 const N=x=>{const v=parseFloat(String(x??'').replace(/[$,\s%]/g,''));return isFinite(v)?v:0;};
 const R=x=>Math.round(x);
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
@@ -933,16 +898,18 @@ function ltcCap(age){for(const[a,c]of C.LTC_CAP){if(age<=a)return c;}return 6200
    THE MAIN LOOP — one pass per year, steps 0 through 20 in order.
    ========================================================================== */
 function project(s){
-  const startAge=ageOn(s.dob,C.YEAR)||42;
+  const baseYear=N(s.taxPlanYear)||C.YEAR;
+  const startAge=ageOn(s.dob,baseYear)||42;
   const birthYear=yrOf(s.dob)||(C.YEAR-startAge);
   const endAge=+(s.endAge||90);
   const retAge=N(s.retireAge)||65;
   const infl=N(s.inflation)/100||.025;
   const hcInfl=N(s.hcInflation)/100||.05;
-  const gGrow=N(s.incomeGrowth)/100||.03;
-  const rRet=(N(s.retReturn)/100||.065)-(N(s.advisoryFee)/100||0);
+  const SC=SCENARIOS[s.scenario||'expected'];
+  const gGrow=(s.scenario?SC.incomeGrowth:N(s.incomeGrowth))/100||.03;
+  const rRet=((s.scenario?SC.retirementReturn:N(s.retReturn))/100||.065)-(N(s.advisoryFee)/100||0);
   const rTax=N(s.taxableReturn)/100||.0575;
-  const rRE=N(s.reGrowth)/100||.035;
+  const rRE=(s.scenario?SC.realEstateReturn:N(s.reGrowth))/100||.035;
   const rmdAge=rmdAgeFor(birthYear);
   const heirRate=N(s.heirRate)/100||.35;
   const retFactor=N(s.retExpenseFactor)/100||.85;
@@ -975,11 +942,37 @@ function project(s){
   const pols=(s.policies||[]).map(p=>({...p,
     _cv:N(p.cashValue),_loan:N(p.loanBal),_basis:N(p.premiumsPaid),_lapsed:false}));
 
+  /* ---------- Deployable Wealth Capital layer (mirrors tax-be) ---------- */
+  const strat=(s.strategies||[]);
+  /* a strategy contributes only in the years it is actually active, net of its cost */
+  const stratInYear=y=>strat.reduce((t,x)=>{
+    const a=N(x.startYear)||baseYear, b=N(x.endYear)||9999;
+    if(y<a||y>b)return t;
+    return t+N(x.federalTaxSavings)+N(x.stateTaxSavings)-N(x.investmentAmount);
+  },0);
+  const stratTotal=strat.reduce((t,x)=>t+N(x.federalTaxSavings)+N(x.stateTaxSavings),0);
+  const netTaxSavings=stratTotal>0?stratInYear(baseYear):N(s.taxSavings);
+  const effectiveness=(N(s.strategyEffectiveness)||100)/100;
+  const dwcPct=N(s.dwcPercent)/100;
+  /* the formula printed on the roadmap: Net Tax Savings + DWC % x Qualified Deduction Base */
+  const annualDWC=(netTaxSavings+dwcPct*N(s.qualifiedDeductionBase))*effectiveness;
+  const allocRaw={retirement:N(s.bucketRetirement),insurance:N(s.bucketInsurance),
+    realestate:N(s.bucketRealestate),liquidity:N(s.bucketLiquidity),
+    legacy:N(s.bucketLegacy),disabilityLtc:N(s.bucketDisabilityLtc)};
+  const allocSum=Object.values(allocRaw).reduce((a,b)=>a+b,0);
+  const alloc={};Object.keys(allocRaw).forEach(k=>alloc[k]=allocSum>0?allocRaw[k]/allocSum:0);
+  const costDrag=(N(s.adminFeeCost)+N(s.costOfInvestment))/100;
+  const bucketRate={retirement:rRet-costDrag, insurance:(N(s.creditRate)/100||.055)-costDrag,
+    realestate:rRE-costDrag, liquidity:rTax-costDrag,
+    legacy:rTax-costDrag, disabilityLtc:rTax-costDrag};
+  let bucket={retirement:0,insurance:0,realestate:N(s.currentRealEstateValue),
+              liquidity:N(s.cashOnHand),legacy:0,disabilityLtc:0};
+
   const rows=[],notes=[];
   let widowed=false,divorced=false,ltcActive=false;
 
   for(let age=startAge;age<=endAge;age++){
-    const n=age-startAge, year=C.YEAR+n, iAdj=Math.pow(1+infl,n);
+    const n=age-startAge, year=baseYear+n, iAdj=Math.pow(1+infl,n);
     const working=age<retAge;
     const evts=[];
 
@@ -987,7 +980,7 @@ function project(s){
     if(s.modelDeath==='y'&&age===N(s.deathAge)){
       widowed=true;                       /* status stays MFJ for the ENTIRE year of death */
       evts.push('Spouse died — filing status stays MFJ for this year (IRC §2)');
-      notes.push({t:'b',y:year,m:`Age ${age}: the widow's penalty begins. Filing status, bracket widths, the standard deduction and the IRMAA threshold all roughly halve at once.`});
+      notes.push({t:'b',y:year,m:`Age ${age}: filing status changes for the survivor. Tax rises even though income falls.`});
     }
     if(widowed&&age>N(s.deathAge)){
       const yrsSince=age-N(s.deathAge);
@@ -997,14 +990,14 @@ function project(s){
     if(s.modelDivorce==='y'&&age===N(s.divorceAge)){divorced=true;fs='single';evts.push('Divorce — filing status → Single');}
     if(s.expectLTC==='y'&&age>=N(s.ltcStartAge)&&age<N(s.ltcStartAge)+N(s.ltcYears)){
       if(!ltcActive){evts.push('Long-term care begins');ltcActive=true;
-        notes.push({t:'w',y:year,m:`Age ${age}: care costs begin. This is also the largest medical deduction of the client's life — often the cheapest year to convert to Roth.`});}
+        notes.push({t:'w',y:year,m:`Age ${age}: long-term care begins. Large medical costs also mean a large deduction this year.`});}
     } else ltcActive=false;
     let windfall=0,windfallBasisAmt=0,windfallQSBS=false;
     if(s.modelWindfall==='y'&&age===N(s.windfallAge)){
       windfall=N(s.windfallAmt);windfallBasisAmt=N(s.windfallBasis);
       windfallQSBS=s.windfallQSBS==='y';
       evts.push('One-time windfall '+money(windfall));
-      notes.push({t:'w',y:year,m:`Age ${age}: windfall of ${money(windfall)}. ${windfallQSBS?'QSBS gain is excluded from gross income, so it does NOT raise IRMAA.':'IRMAA will spike two years later and cannot be appealed — the SSA-44 list is closed.'}`});
+      notes.push({t:'w',y:year,m:`Age ${age}: windfall of ${money(windfall)}. ${windfallQSBS?'Qualifying gain does not affect Medicare premiums.':'Medicare premiums rise two years later.'}`});
     }
     const married=['mfj','mfs'].includes(fs);
     const people65=(age>=65?1:0)+((married&&!widowed)?(ageOn(s.spouseDob,year)>=65?1:0):0);
@@ -1065,16 +1058,16 @@ function project(s){
       const et=earningsTest(ss,w2,age,C.SS.fra,iAdj);
       ss=et.paid; ssWithheld=et.withheld;
       if(et.withheld>0&&!rows.some(r=>r.ssWithheld>0))
-        notes.push({t:'i',y:year,m:`Age ${age}: ${money(et.withheld)} of Social Security is withheld by the earnings test. It is not lost — benefits are recomputed upward at full retirement age.`});
+        notes.push({t:'i',y:year,m:`Age ${age}: ${money(et.withheld)} of Social Security is withheld because of earnings. It is added back later.`});
     }
 
     /* ---------- STEP 5 — RMD (prior 31 Dec balance) ---------- */
     let rmd=0;
     if(age>=rmdAge&&priorPretax>0){rmd=priorPretax/ultDiv(age);
-      if(age===rmdAge)notes.push({t:'i',y:year,m:`Age ${age}: first RMD of ${money(rmd)}. It is taxable, it makes Social Security more taxable, and it can trip IRMAA two years later.`});}
+      if(age===rmdAge)notes.push({t:'i',y:year,m:`Age ${age}: required withdrawals begin at ${money(rmd)}. This is taxable income.`});}
 
     /* ---------- STEP 5b + 6-9 — property classification then the four gates ---------- */
-    let reIncome=0,reAllowedLoss=0,reNonPassive=0,gateFail=false;
+    let reIncome=0,reAllowedLoss=0,reNonPassive=0,gateFail=false,k1CapGain=0;
     let passivePool=0,passiveIncome=0,nonPassiveBiz=0;
     props.forEach(p=>{
       if(p._sold)return;
@@ -1118,6 +1111,10 @@ function project(s){
         if(isPassive)passivePool+=g.allowed+g.sPassive; else nonPassiveBiz-=g.allowed;
       }
       passiveIncome+=N(k.portfolio);
+      /* K-1 rental is passive by default; K-1 capital gain flows to the gains rail */
+      const kr=N(k.rental)*Math.pow(1+gGrow,n);
+      if(kr>0)passiveIncome+=kr; else if(kr<0)passivePool+=-kr;
+      k1CapGain+=N(k.capGain)*Math.pow(1+gGrow,n);
     });
     /* Gate 3 — pool passive losses against passive income + the $25,000 allowance */
     const magiForAllow=w2+bizProfit+otherInc;
@@ -1130,7 +1127,7 @@ function project(s){
     if(bizNet<0){ const cap=C.EBL[fs]*iAdj;
       ebl=Math.max(0,-bizNet-cap);
       if(ebl>0){nol+=ebl;
-        if(!rows.some(r=>r.ebl))notes.push({t:'w',y:year,m:`Age ${age}: business loss exceeds the §461(l) cap of ${money(cap)}. ${money(ebl)} becomes an NOL, usable against only 80% of income in later years.`});}
+        if(!rows.some(r=>r.ebl))notes.push({t:'w',y:year,m:`Age ${age}: business loss exceeds the annual cap of ${money(cap)}. ${money(ebl)} carries forward to later years.`});}
     }
     const bizAllowed=bizNet<0?bizNet+ebl:bizNet;
 
@@ -1172,8 +1169,8 @@ function project(s){
       }
     }
     const rothConv=(s.rothConv==='y'&&!working&&age<rmdAge)?N(s.rothConvAmt):0;
-    let capGain=0;
-    if(windfall>0)capGain=windfallQSBS?0:Math.max(0,windfall-windfallBasisAmt);
+    let capGain=Math.max(0,k1CapGain);
+    if(windfall>0)capGain+=windfallQSBS?0:Math.max(0,windfall-windfallBasisAmt);
     const otherForSS=w2+bizAllowed+otherInc+rmd+portfolioInc+reIncome
                      -passiveAllowed+rothConv+capGain+realizedGain-seDeductible;
     const ssTaxable=taxableSS(ss,otherForSS,0,C.SS.taxThr[fs]||C.SS.taxThr.single);
@@ -1238,7 +1235,7 @@ function project(s){
     const amti=Math.max(0,ti+qbiDed+amtAddBack+isoSpread);
     const A=amtOf(amti,fs,fed,iAdj);
     if(A.due>0){amtCredit+=A.due;
-      if(!rows.some(r=>r.amt>0))notes.push({t:'w',y:year,m:`Age ${age}: AMT of ${money(A.due)} applies. It creates a minimum tax credit of the same amount, recoverable in later years.`});}
+      if(!rows.some(r=>r.amt>0))notes.push({t:'w',y:year,m:`Age ${age}: alternative minimum tax of ${money(A.due)} applies, with a credit carried forward.`});}
 
     /* ---------- state ---------- */
     const stRate=C.STATE[s.state]??0;
@@ -1253,7 +1250,7 @@ function project(s){
       const joint=['mfj','qss'].includes(fs);
       const t1=joint?C.MEDICARE.tiers[1].j:C.MEDICARE.tiers[1].s;
       if(m2>t1&&!rows.some(r=>r.irmaa>C.MEDICARE.partB*12*2))
-        notes.push({t:'w',y:year,m:`Age ${age}: IRMAA applies — ${year-2} income of ${money(m2)} exceeds ${money(t1)}. It is a cliff: one dollar over costs the whole tier.`});
+        notes.push({t:'w',y:year,m:`Age ${age}: Medicare surcharge applies, based on ${year-2} income of ${money(m2)}.`});
     }
 
     const totalTax=fed+payroll+stateTax+niit+A.due;
@@ -1281,7 +1278,7 @@ function project(s){
       const takeP=Math.min(Math.max(0,pretax),need);pretax-=takeP;need-=takeP;
       const takeR=Math.min(Math.max(0,roth),need);roth-=takeR;need-=takeR;
       if(need>0&&!rows.some(r=>r.depleted))
-        notes.push({t:'b',y:year,m:`Age ${age}: accounts are exhausted — the plan runs short by ${money(need)} this year.`});
+        notes.push({t:'b',y:year,m:`Age ${age}: accounts run out. The plan is short by ${money(need)} this year.`});
     }
     pretax=Math.max(0,pretax);roth=Math.max(0,roth);taxable=Math.max(0,taxable);
     priorPretax=pretax;
@@ -1302,10 +1299,21 @@ function project(s){
       if(p._loan>p._cv&&p._cv>0){
         p._lapsed=true;
         const gain=Math.max(0,p._loan-p._basis);
-        notes.push({t:'b',y:year,m:`Age ${age}: POLICY LAPSE. The loan of ${money(p._loan)} exceeds cash value. Taxable gain ${money(gain)} — tax of roughly ${money(gain*.35)} on money already borrowed and spent, with no cash left to pay it.`});
+        notes.push({t:'b',y:year,m:`Age ${age}: the policy lapses. Loans of ${money(p._loan)} exceed its value, creating a taxable gain of ${money(gain)}.`});
       }
       cv+=Math.max(0,p._cv);db+=N(p.face);polLoan+=p._loan;
     });
+
+    /* ---------- DWC deployment — approved savings into the six buckets ---------- */
+    let dwcThisYear=0;
+    const savingsThisYear=strat.length?stratInYear(year):netTaxSavings;
+    if(working&&savingsThisYear>0){
+      const dwcBase=(savingsThisYear+dwcPct*N(s.qualifiedDeductionBase))*effectiveness;
+      dwcThisYear=dwcBase*Math.pow(1+gGrow,n);
+      Object.keys(bucket).forEach(k=>{bucket[k]+=dwcThisYear*alloc[k];});
+    }
+    Object.keys(bucket).forEach(k=>{bucket[k]*=(1+(bucketRate[k]||0));});
+    const dwcTotal=Object.values(bucket).reduce((a,b)=>a+b,0);
 
     /* ---------- STEP 18 — real estate equity ---------- */
     let reEquity=0,reValue=0;
@@ -1314,7 +1322,8 @@ function project(s){
     /* ---------- STEP 19 — estate value ---------- */
     const insInEstate=pols.reduce((t,p)=>t+(p.owner==='ilit'&&p.transferred3yr!=='y'?0:N(p.face)),0);
     const gross=pretax+roth+taxable+cv-polLoan+reEquity+N(s.otherAssets)+insInEstate;
-    const excl=C.ESTATE.excl*iAdj+N(s.dsue);
+    /* lifetime taxable gifts already made consume the exclusion — IRC §2001(b) */
+    const excl=Math.max(0,C.ESTATE.excl*iAdj+N(s.dsue)-N(s.priorGifts));
     const fedEstate=Math.max(0,(gross-N(s.debts)-excl))*C.ESTATE.rate;
     const se=C.STATE_ESTATE[s.state];
     let stateEstate=0;
@@ -1337,6 +1346,8 @@ function project(s){
 
     /* ---------- STEP 20 — deflate ---------- */
     rows.push({age,year,fs,working,widowed,evts,ssWithheld:R(ssWithheld),realizedGain:R(realizedGain),
+      dwc:R(dwcThisYear),dwcTotal:R(dwcTotal),buckets:{...Object.fromEntries(
+        Object.entries(bucket).map(([k,v])=>[k,R(v)]))},
       income:R(income),w2:R(w2),ss:R(ss),rmd:R(rmd),biz:R(bizAllowed),
       expenses:R(expenses),ltc:R(ltcCost),irmaa:R(irmaa),
       contrib:R(pretaxContrib+rothContrib),agi:R(agi),ti:R(ti),
@@ -1348,7 +1359,14 @@ function project(s){
       real:R(gross/iAdj),estateReal:R(netToHeirs/iAdj),gateFail,
       depleted:surplus<0&&taxable+pretax+roth<=0});
   }
-  return{rows,notes,meta:{startAge,endAge,retAge,rmdAge,birthYear,infl,
+  const totTax=N(s.totalTax);
+  const fedSav=strat.reduce((t,x)=>t+N(x.federalTaxSavings),0);
+  const stSav=strat.reduce((t,x)=>t+N(x.stateTaxSavings),0);
+  return{rows,notes,meta:{startAge,endAge,retAge,rmdAge,birthYear,infl,baseYear,
+    netTaxSavings,annualDWC,alloc,allocSum,dwcPct,totalTax:totTax,
+    fedProtectionPct:totTax>0?Math.min(100,Math.round(fedSav/totTax*100)):0,
+    stateProtectionPct:totTax>0?Math.min(100,Math.round(stSav/totTax*100)):0,
+    strategyCount:strat.length,
     isSSTB:C.SSTB_YES.includes(s.bizField),fsFinal:fs}};
 }
 
@@ -1368,8 +1386,7 @@ const esc=t=>String(t??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&g
 let state={}, step=0;
 const LS='roadmap90.v1';
 
-function save(){try{localStorage.setItem(LS,JSON.stringify({state,step}));
-  $('saveInfo').textContent='Saved '+new Date().toLocaleTimeString();}catch(e){}}
+function save(){try{localStorage.setItem(LS,JSON.stringify({state,step}));}catch(e){}}
 function load(){try{const d=JSON.parse(localStorage.getItem(LS)||'null');
   if(d&&d.state){state=d.state;step=d.step||0;return true;}}catch(e){}return false;}
 function toast(m){const t=$('toast');t.textContent=m;t.classList.add('on');
@@ -1466,7 +1483,6 @@ function renderStep(){
   $('btnNext').classList.toggle('hide',step===SCHEMA.length-1);
   $('btnRun').classList.toggle('hide',step!==SCHEMA.length-1);
   $('navInfo').textContent=`Module ${step} of ${SCHEMA.length-1}`;
-  renderFindings();
   window.scrollTo({top:0,behavior:'smooth'});
 }
 
@@ -1494,7 +1510,7 @@ function setPath(p,v){
 function bind(){
   document.querySelectorAll('#wizard [data-p]').forEach(el=>{
     const h=()=>{setPath(el.dataset.p,el.type==='checkbox'?el.checked:el.value);
-      save();renderFindings();
+      save();
       if(el.tagName==='SELECT')renderStep();};
     el.addEventListener('change',h);
     el.addEventListener('blur',()=>{(state.__touched=state.__touched||{})[el.dataset.p]=1;
@@ -1508,7 +1524,7 @@ function bind(){
         el.value=parts.length>1?whole+'.'+parts[1].slice(0,2):whole;
         if(caretEnd)el.setSelectionRange(el.value.length,el.value.length);
       }
-      setPath(el.dataset.p,el.type==='checkbox'?el.checked:el.value);save();renderFindings();});
+      setPath(el.dataset.p,el.type==='checkbox'?el.checked:el.value);save();});
   });
   document.querySelectorAll('[data-add]').forEach(b=>b.onclick=()=>{
     const k=b.dataset.add;(state[k]=state[k]||[]).push({});save();renderStep();});
@@ -1521,148 +1537,6 @@ function bind(){
   document.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>{step=+b.dataset.go;renderStep();});
 }
 
-/* ==========================================================================
-   LIVE FINDINGS — every one cites the rule it comes from
-   ========================================================================== */
-function findings(){
-  const s=state,out=[];
-  const add=(t,b,m,src)=>out.push({t,b,m,src});
-  const age=ageOn(s.dob,C.YEAR), by=yrOf(s.dob);
-
-  if(by){
-    const ra=rmdAgeFor(by);
-    add('i',`RMD age ${ra}`,ra===75
-      ? `Born ${by} — RMDs start at 75, not 73. Nothing is forced at 73 or 74, giving two extra years of near-empty brackets for Roth conversions.`
-      : `Born ${by} — RMDs start at 73.`,'SECURE 2.0 §107 · IRS Pub 590-B');
-  }
-  if(age>0){
-    const cu=catchUp(age), lim=C.LIM.d401k+cu;
-    if(age>=50)add(age>=60&&age<=63?'o':'i',`401(k) limit ${money(lim)}`,
-      age>=60&&age<=63
-        ? `Ages 60–63 get the ${money(C.LIM.cu6063)} super catch-up. It REPLACES the ${money(C.LIM.cu50)} age-50 catch-up — it does not stack. At 64 the limit drops back to ${money(C.LIM.d401k+C.LIM.cu50)}.`
-        : `Base ${money(C.LIM.d401k)} plus the ${money(cu)} age-50 catch-up.`,
-      'IRS Notice 2025-67');
-  }
-  if(N(s.priorYearWages)>C.LIM.rothCatchUpWageTrigger)
-    add('w','Catch-up must be Roth',
-      `Prior-year wages of ${money(s.priorYearWages)} exceed ${money(C.LIM.rothCatchUpWageTrigger)}, so from 2026 the catch-up must be after-tax Roth. That removes a deduction you may be counting on.`,
-      'SECURE 2.0 §603');
-
-  if(s.bizField){
-    const sstb=C.SSTB_YES.includes(s.bizField);
-    add(sstb?'w':'o',sstb?'This is an SSTB':'NOT an SSTB',
-      sstb
-        ? `Specified service business — the 20% QBI deduction phases out completely above ${money(C.QBI.end[s.filingStatus||'single'])} of taxable income.`
-        : `${s.bizField==='engineering'||s.bizField==='architecture'
-            ?'Engineering and architecture are excluded from the SSTB list BY STATUTE — full 20% at any income.'
-            :'Not a specified service business — the deduction survives above the threshold, limited instead by W-2 wages and property basis.'}`,
-      'IRC §199A(d)(2) → §1202(e)(3)(A)');
-  }
-
-  (s.props||[]).forEach((p,i)=>{
-    const nm=p.label||`Property ${i+1}`;
-    const rented=N(p.daysRented),personal=N(p.personalDays);
-    if(rented>0&&rented<=14)
-      add('o',`${nm}: Augusta rule`,`Rented ${rented} days — 14 or fewer means the income is excluded from your return entirely.`,'IRC §280A(g)');
-    else if(personal>0&&rented>0){
-      const thr=Math.max(C.RE.use280A,C.RE.use280Apct*rented);
-      if(personal>thr)add('b',`${nm}: §280A blocks the loss`,
-        `${personal} personal days exceeds the threshold of ${Math.round(thr)} (greater of 14 days or 10% of ${rented} rental days). Deductions are capped at rental income — no loss reaches the gates at all.`,'IRC §280A');
-    }
-    if(p.rentType==='str'&&N(p.avgStay)>0){
-      const cls=classifyProperty(p);
-      add(cls.passive?'w':'o',`${nm}: ${cls.passive?'still passive':'NON-PASSIVE'}`,cls.reason,
-        'Reg. §1.469-1T(e)(3)(ii)(A) · §1.469-5T(a)');
-      if(!cls.passive)add('w',`${nm}: the EBL cap still applies`,
-        `A non-passive short-term rental loss skips the passive gate but still meets the §461(l) cap of ${money(C.EBL[s.filingStatus||'single'])}. Being non-passive does not exempt it.`,'IRC §461(l)');
-    }
-    if(p.rentType==='str'&&s.reps==='y')
-      add('i',`${nm}: REPS is irrelevant here`,
-        `Real estate professional status governs RENTAL ACTIVITIES. A short-term rental under the 7-day rule is not one, so REPS neither helps nor is needed.`,'IRC §469(c)(7)');
-    if(p.rentType==='str'&&p.substantialSvc==='y')
-      add('w',`${nm}: self-employment tax`,
-        `Hotel-like services move this to Schedule C and add 15.3% self-employment tax. Average stay governs the passive rules; substantial services govern SE tax — two independent tests.`,'IRC §1402');
-    if(p.costSeg==='y')
-      add('i',`${nm}: cost segregation is a timing strategy`,
-        `It accelerates deductions but lowers basis, so the 25% depreciation recapture on sale is correspondingly larger — unless the property is held until death, when §1014 erases both.`,'IRC §1250 · §1014');
-    if(p.loanKind==='seller')
-      add('w',`${nm}: at-risk limited`,
-        `Seller or related-party financing is not "qualified nonrecourse financing", so it does not count toward your at-risk amount. Only cash you actually contributed does.`,'IRC §465(b)(6)');
-  });
-
-  if(s.reps==='y'&&s.repsAgg!=='y')
-    add('w','No aggregation election',
-      `Without the §1.469-9(g) election, material participation is tested property by property — usually impossible across several rentals. With it, hours combine into one activity.`,'Reg. §1.469-9(g)');
-
-  const fsx=s.filingStatus||'single';
-  const magi=N(s.w2)+N(s.spouseW2)+N(s.bizProfit)+N(s.otherIncome);
-  if(magi>0){
-    const allow=Math.max(0,C.ALLOW25K.amt-C.ALLOW25K.rate*Math.max(0,magi-C.ALLOW25K.start));
-    if(allow<=0&&(s.props||[]).length)
-      add('i','$25,000 rental allowance is zero',
-        `It phases out completely at ${money(150000)} of MAGI and has never been indexed since 1986. At ${money(magi)} it contributes nothing.`,'IRC §469(i)');
-    if(magi>C.NIIT.thr[fsx])
-      add('i','NIIT applies',
-        `MAGI is above the ${money(C.NIIT.thr[fsx])} threshold, which has been frozen since 2013 and never adjusts for inflation.`,'IRC §1411');
-  }
-
-  (s.policies||[]).forEach((p,i)=>{
-    if(p.owner==='self'&&N(p.face)>0)
-      add('w',`Policy ${i+1} is in your estate`,
-        `Personally owned, so the full ${money(p.face)} death benefit is in your taxable estate. In an irrevocable trust it would be ${money(0)} — worth ${money(N(p.face)*.4)} at the 40% rate if your estate is taxable.`,'IRC §2042');
-    if(p.transferred3yr==='y')
-      add('b',`Policy ${i+1}: three-year rule`,
-        `Transferred within three years of death, the proceeds are pulled back into the estate regardless of who owns it now.`,'IRC §2035');
-    if(p.isMEC==='y')
-      add('b',`Policy ${i+1} is a MEC`,
-        `Loans and withdrawals come out gains-first and are taxable, with a 10% penalty before 59½. MEC status is permanent and cannot be undone.`,'IRC §7702A');
-  });
-
-  if(s.state){
-    const se=C.STATE_ESTATE[s.state];
-    if(se)add('w',`${s.state} has its own estate tax`,
-      s.state==='NY'
-        ? `New York's exemption is ${money(se.t)} with a 105% CLIFF at ${money(se.t*1.05)}. Exceed it and the entire estate is taxed from the first dollar, not just the excess.`
-        : `Threshold ${money(se.t)} — far below the federal ${money(C.ESTATE.excl)}. Your heirs can owe state estate tax with zero federal tax due.`,
-      'State statute');
-    if(C.STATE[s.state]===0)add('o',`${s.state} has no state income tax`,'Nothing is added on the state layer.','State statute');
-    if(C.COMMUNITY_PROPERTY.includes(s.state))add('o',`${s.state} is a community property state`,
-      `Both halves of community property step up at the FIRST death — 100%, not the 50% common-law states get. On a $2M asset with $1M of basis that is worth roughly ${money(119000)} of avoided capital gains tax.`,'IRC §1014(b)(6)');
-  }
-
-  if(s.modelDeath==='y')
-    add('b','The widow\'s penalty will fire',
-      `On the first death, filing status, bracket widths, the standard deduction, the Social Security taxation thresholds and the IRMAA tier all roughly halve at once. Income falls; tax rises. Roth conversions done while both spouses are alive cost materially less.`,
-      'IRC §2(a) · CMS 2026');
-  if(s.modelWindfall==='y')
-    add(s.windfallQSBS==='y'?'o':'w',s.windfallQSBS==='y'?'QSBS does not raise IRMAA':'IRMAA will spike in two years',
-      s.windfallQSBS==='y'
-        ? `§1202 is an exclusion from gross income, so qualifying gain never enters AGI. A widely repeated claim says otherwise — it is wrong.`
-        : `IRMAA uses income from two years prior, and a one-time spike is NOT on the closed SSA-44 list of appealable life-changing events. The only defence is timing the sale.`,
-      'IRC §1202 · 20 CFR §418.1205');
-  if(s.ssClaimAge==='62')
-    add('w','Claiming at 62 is permanent',
-      `A 30% reduction for life against claiming at 67. On a ${money(4152)}/month benefit that is roughly ${money(12828)} a year, every year.`,'20 CFR §404.313');
-
-  if(!out.length)out.push({t:'i',b:'Nothing flagged yet',m:'Keep filling in the modules — findings appear here as soon as a rule engages.',src:''});
-  return out;
-}
-const SEV={b:{o:0,ic:'\u26A0',n:'Needs attention'},w:{o:1,ic:'\u26A1',n:'Worth knowing'},
-           o:{o:2,ic:'\u2713',n:'In your favour'},i:{o:3,ic:'\u2139',n:'For information'}};
-function renderFindings(){
-  const all=findings();
-  const groups={};
-  all.forEach(f=>{(groups[f.t]=groups[f.t]||[]).push(f);});
-  const order=Object.keys(groups).sort((a,b)=>(SEV[a]?.o??9)-(SEV[b]?.o??9));
-  const badge=$('fndCount');
-  if(badge)badge.textContent=all.length;
-  $('findings').innerHTML=order.map(k=>{
-    const g=groups[k],meta=SEV[k]||{ic:'\u2022',n:''};
-    return `<div class="fgrp"><h5>${esc(meta.n)} <span class="fcount">${g.length}</span></h5>`+
-      g.map(f=>`<div class="fnd ${k}"><span class="ic">${meta.ic}</span><div>
-        <b>${esc(f.b)}</b>${esc(f.m)}${f.src?`<div class="src">${esc(f.src)}</div>`:''}</div></div>`).join('')+
-    `</div>`;}).join('');
-}
 
 
 
@@ -1763,14 +1637,8 @@ function reviewHtml(){
     ['K-1 entities',(s.k1s||[]).length],
     ['Insurance policies',(s.policies||[]).length]
   ];
-  const missing=[];
-  SCHEMA.forEach((m,i)=>(m.fields||[]).forEach(f=>{
-    if(f.req&&(f.show?f.show(s):true)&&!s[f.k])missing.push(`Module ${i} — ${f.l}`);}));
   return `<div class="grid">${rows.map(([k,v])=>
-    `<div class="f"><label>${esc(k)}</label><div style="font-weight:620">${esc(v)}</div></div>`).join('')}</div>
-    ${missing.length?`<div class="note w"><b>Still missing:</b><br>${missing.map(esc).join('<br>')}
-      <br><small>You can still run the projection — blanks are treated as zero.</small></div>`
-    :`<div class="note o"><b>All required fields are complete.</b> Run the projection below.</div>`}`;
+    `<div class="f"><label>${esc(k)}</label><div style="font-weight:620">${esc(v)}</div></div>`).join('')}</div>`;
 }
 
 let LAST=null, showReal=false;
@@ -1787,12 +1655,10 @@ function runProjection(){
     .filter((a,i,ar)=>ar.indexOf(a)===i);
 
   let h=`<div class="card"><h2>Projection — ages ${meta.startAge} to ${meta.endAge}</h2>
-   <p class="lede">Computed nominal, ${showReal?'shown in today\'s dollars':'shown in future dollars'}.
-     ${R_.length} years. Filing status ends as <b>${esc(meta.fsFinal)}</b>.</p>
+   <p class="lede">${R_.length} years, ${showReal?"shown in today's dollars":'shown in future dollars'}.</p>
    <div class="tabs">
      <button class="tab ${!showReal?'on':''}" id="tabNom">Future dollars</button>
      <button class="tab ${showReal?'on':''}" id="tabReal">Today's dollars</button>
-     <button class="tab" id="btnPrint">Print / PDF</button>
    </div>
    <div class="kpis">
      <div class="kpi"><div class="k">Net worth at retirement (${meta.retAge})</div><div class="v">${moneyK(showReal?atRet.real:atRet.netWorth)}</div></div>
@@ -1805,11 +1671,42 @@ function runProjection(){
        <div class="ph">${a<meta.retAge?'Accumulation':a<meta.rmdAge?'Pre-RMD window':'Distribution'}</div>
        <div class="v">${moneyK(V(r))}</div></div>`;}).join('')}</div>`;
 
+  if(meta.annualDWC>0){
+    const bl=[['retirement','401(k) / Cash balance / Roth'],['insurance','Life insurance cash value'],
+              ['realestate','Real estate / business'],['liquidity','Liquidity reserve'],
+              ['legacy','Legacy / trust / philanthropy'],['disabilityLtc','Disability / LTC protection']];
+    const atR=R_.find(r=>r.age>=meta.retAge)||R_[R_.length-1];
+    h+=`<h3 style="margin-top:22px">Deployable Wealth Capital roadmap</h3>
+      ${meta.totalTax>0?`<div class="kpis" style="margin-top:0">
+        <div class="kpi"><div class="k">Federal tax protected</div><div class="v">${meta.fedProtectionPct}%</div></div>
+        <div class="kpi"><div class="k">State tax protected</div><div class="v">${meta.stateProtectionPct}%</div></div>
+        <div class="kpi"><div class="k">Strategies applied</div><div class="v">${meta.strategyCount}</div></div>
+        <div class="kpi"><div class="k">Total tax before strategies</div><div class="v">${moneyK(meta.totalTax)}</div></div>
+      </div>`:''}
+      <p class="lede"><b>${money(meta.annualDWC)}</b> deployed every working year, split across six buckets.</p>
+      <div class="miles">${[42,45,50,55,meta.retAge,70,80,90,100]
+        .filter(a=>a>=meta.startAge&&a<=meta.endAge).filter((a,i,ar)=>ar.indexOf(a)===i)
+        .map(a=>{const r=R_.find(x=>x.age===a);if(!r)return'';
+          return `<div class="mile ${a===meta.retAge?'r':''}"><div class="a">Age ${a}</div>
+            <div class="ph">${a<meta.retAge?'Contribution':'Distribution'}</div>
+            <div class="v">${moneyK(showReal?r.dwcTotal/Math.pow(1+meta.infl,a-meta.startAge):r.dwcTotal)}</div></div>`;}).join('')}</div>
+      <div class="tw"><table><thead><tr><th>Bucket</th><th>Share</th>
+        <th>At retirement (${meta.retAge})</th><th>At ${meta.endAge}</th></tr></thead><tbody>
+        ${bl.map(([k,lbl])=>{const f1=showReal?Math.pow(1+meta.infl,atR.age-meta.startAge):1;
+          const f2=showReal?Math.pow(1+meta.infl,meta.endAge-meta.startAge):1;
+          return `<tr><td>${lbl}</td><td>${Math.round(meta.alloc[k]*100)}%</td>
+            <td>${money(atR.buckets[k]/f1)}</td>
+            <td>${money(R_[R_.length-1].buckets[k]/f2)}</td></tr>`;}).join('')}
+        <tr style="font-weight:650"><td>Total</td><td>100%</td>
+          <td>${money(atR.dwcTotal/(showReal?Math.pow(1+meta.infl,atR.age-meta.startAge):1))}</td>
+          <td>${money(R_[R_.length-1].dwcTotal/(showReal?Math.pow(1+meta.infl,meta.endAge-meta.startAge):1))}</td></tr>
+        </tbody></table></div>`;
+  }
   h+=`<h3 style="margin-top:20px">Net worth and legacy</h3>${chartLine(R_,meta,showReal)}
    <h3 style="margin-top:20px">Where the money sits</h3>${chartBuckets(R_,meta,showReal)}
    <h3 style="margin-top:20px">Tax by type, each year</h3>${chartTax(R_,meta,showReal)}`;
 
-  /* findings from the run */
+  /* notes from the run */
   if(P.notes.length){
     h+=`<h3 style="margin-top:18px">What the projection found</h3>`+
       P.notes.map(nt=>`<div class="note ${nt.t}"><b>${nt.y}</b> — ${esc(nt.m)}</div>`).join('');
@@ -1818,9 +1715,8 @@ function runProjection(){
   const win=R_.filter(r=>r.age>=meta.retAge&&r.age<meta.rmdAge);
   if(win.length){
     const avgTax=win.reduce((t,r)=>t+r.fed,0)/win.length;
-    h+=`<div class="note o"><b>Roth conversion window:</b> ages ${meta.retAge}–${meta.rmdAge-1}
-      (${win.length} years). Average federal tax in those years is ${money(avgTax)} — the cheapest brackets
-      the client will ever see. After ${meta.rmdAge} the RMD fills them.</div>`;
+    h+=`<div class="note o"><b>Conversion window:</b> ages ${meta.retAge}–${meta.rmdAge-1}
+      (${win.length} years), averaging ${money(avgTax)} of federal tax a year.</div>`;
   }
   h+=`</div>`;
 
@@ -1845,13 +1741,11 @@ function runProjection(){
     if(r.evts.length)h+=`<tr class="evt"><td colspan="21" style="text-align:left">↳ ${r.evts.map(esc).join(' · ')}</td></tr>`;
   });
   h+=`</tbody></table></div>
-   <p><small>⚑ marks a year with a life event. The gold line is retirement.
-   Estate is net to heirs after estate tax AND the income tax the heirs owe on pre-tax retirement accounts (IRD).</small></p></div>`;
+   <p><small>⚑ marks a year with a life event. Estate is the amount left after tax.</small></p></div>`;
 
   $('results').innerHTML=h;
   $('tabNom').onclick=()=>{showReal=false;runProjection();};
   $('tabReal').onclick=()=>{showReal=true;runProjection();};
-  $('btnPrint').onclick=()=>window.print();
   const bad=R_.filter(r=>r.gateFail).length;
   if(bad)toast(`⚠ Conservation check failed in ${bad} year(s)`);
   $('results').scrollIntoView({behavior:'smooth'});
@@ -1948,20 +1842,11 @@ $('btnDemo').onclick=()=>{state=JSON.parse(JSON.stringify(DEMO));step=SCHEMA.len
   save();renderStep();toast('Demo loaded — press Run projection');};
 $('btnReset').onclick=()=>{if(confirm('Clear everything and start over?')){
   state={};step=0;localStorage.removeItem(LS);$('results').innerHTML='';renderStep();toast('Cleared');}};
-$('btnExport').onclick=()=>{
-  const b=new Blob([JSON.stringify(state,null,2)],{type:'application/json'});
-  const a=document.createElement('a');a.href=URL.createObjectURL(b);
-  a.download='roadmap90-intake.json';a.click();toast('Exported');};
-$('btnImport').onclick=()=>$('fileIn').click();
-$('fileIn').onchange=e=>{const f=e.target.files[0];if(!f)return;
-  const r=new FileReader();r.onload=()=>{try{state=JSON.parse(r.result);step=0;save();renderStep();
-    toast('Imported');}catch(err){toast('Could not read that file');}};r.readAsText(f);};
 
 if(!load())state={endAge:'90',inflation:'2.5',incomeGrowth:'3',retReturn:'6.5',
   hcInflation:'5',retExpenseFactor:'85',heirRate:'35',reGrowth:'3.5',taxableReturn:'5.75'};
 renderStep();
-/* selfTest();  — panel hidden from the client form.  Re-enable together with the
-   #selftest div above when you need to verify the engine after a constants update. */
+/* selfTest(); */
 
 </script>
 </body>
