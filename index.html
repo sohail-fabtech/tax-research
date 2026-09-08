@@ -150,6 +150,7 @@ h1,h2,h3,h4{overflow-wrap:anywhere}
 @media(max-width:1180px){.side{position:static}
   .side>.card:first-child{max-height:none;overflow:visible}}
 
+h3.sub{font-size:.95rem;font-weight:600;margin:22px 0 8px;padding-top:14px;border-top:1px solid var(--line)}
 /* ---------- nav ---------- */
 .nav{display:flex;gap:10px;align-items:center;margin-top:8px;flex-wrap:wrap;row-gap:8px}
 .nav .sp{flex:1 1 auto;text-align:right}
@@ -314,11 +315,14 @@ const C = Object.freeze({
   },
 
   /* OBBBA senior bonus deduction — 2025-2028 ONLY */
-  SENIOR:{amt:6000, start:{single:75000,mfj:150000,mfs:75000,hoh:75000,qss:150000}, rate:.06, lastYear:2028},
+  /* §151(d)(5)(C): $6,000 per QUALIFIED individual (each must be 65+).
+     MFS is DENIED entirely by (v). Amounts are NOT indexed - the provision expires. */
+  SENIOR:{amt:6000, start:{single:75000,mfj:150000,mfs:null,hoh:75000,qss:150000}, rate:.06, lastYear:2028},
 
   /* §199A QBI — Rev. Proc. 2025-32 + OBBBA §70105 */
-  QBI:{thr:{single:201750,mfj:403500,mfs:201750,hoh:201750,qss:403500},
-       end:{single:276750,mfj:553500,mfs:276750,hoh:276750,qss:553500}, rate:.20, min:400},
+  QBI:{thr:{single:201750,mfj:403500,mfs:201775,hoh:201750,qss:403500},
+       end:{single:276750,mfj:553500,mfs:276775,hoh:276750,qss:553500}, rate:.20,
+       min:400, minQbi:1000},   // §199A(i) minimum deduction, OBBBA §70105
   /* SSTB — IRC §199A(d)(2) adopts the §1202(e)(3)(A) list MINUS engineering & architecture */
   SSTB_YES:['health','law','accounting','actuarial','performing_arts','consulting','athletics',
             'financial_services','brokerage','investing','trading','reputation'],
@@ -357,6 +361,27 @@ const C = Object.freeze({
        rothIRA:{single:[153000,168000],mfj:[242000,252000],mfs:[0,10000],
                 hoh:[153000,168000],qss:[242000,252000]}},
 
+  /* §164(b)(7) as added by OBBBA - a SCHEDULE, not a CPI-indexed figure */
+  SALT:{y2025:40000, y2026:40400, growth:1.01, lastScheduledYear:2029,
+        revertYear:2030, revertAmt:10000,
+        phaseThr2026:505000, phaseGrowth:1.01, phaseRate:.30, floor:10000},
+
+  /* §170(b)(1)(I) 0.5% floor on itemised giving; §170(p) non-itemiser deduction */
+  CHAR_FLOOR:.005,
+  CHAR_NONITEM:{single:1000,mfj:2000,mfs:1000,hoh:1000,qss:2000},
+
+  /* §68 as rewritten by OBBBA - 2/37 of the lesser of itemised or the excess
+     over the 37% bracket floor.  Applied AFTER every other limitation. */
+  SEC68:{frac:2/37},
+
+  /* §1(h)(1)(E),(F) - the two rate CEILINGS the 0/15/20 table does not cover */
+  CG_CEIL:{unrecap1250:.25, collectibles:.28},
+
+  /* §203(a) family maximum - Federal Register 2025-19763 */
+  FAMMAX:{b1:1643, b2:2371, b3:3093, r1:1.50, r2:2.72, r3:1.34, r4:1.75},
+  /* §202(d)(2) child's benefit */
+  CHILD:{living:.50, survivor:.75, ageOut:18, studentAgeOut:19},
+
   /* Loss limitations */
   EBL:{single:256000,mfj:512000,mfs:256000,hoh:256000,qss:512000},   // DOWN from 2025
   NOL_LIMIT:.80, CAP_LOSS:{single:3000,mfj:3000,mfs:1500,hoh:3000,qss:3000},
@@ -386,7 +411,7 @@ const C = Object.freeze({
   /* Real estate — IRC §168, §179, §1250, Reg §1.469-1T */
   RE:{resid:27.5, nonresid:39, landImp:15, personal:5,
       bonus:1.00, s179:2560000, s179PO:4090000,
-      recapture:.25, strDays:7, use280A:14, use280Apct:.10,
+      recapture:.25, sellCost:.06, strDays:7, use280A:14, use280Apct:.10,
       repsHours:750, safeHarborHours:250},
 
   /* State income tax — top-line model.  0 = no income tax */
@@ -474,7 +499,7 @@ function placeholderFor(f){
 }
 
 const SCHEMA=[
-{id:'m0',n:'Engagement & scope',lede:'Basic details about you and your household.',
+{id:'s0',n:'About you',lede:'Who you are, your family, and when you plan to stop working.',
  fields:[
   {k:'clientName',l:'Your full name',t:'text'},
   {k:'dob',l:'Your date of birth',t:'date',req:1,h:'Sets your withdrawal age and other age-based limits'},
@@ -482,19 +507,17 @@ const SCHEMA=[
   {k:'spouseName',l:"Spouse's name",t:'text',show:s=>['mfj','mfs','qss'].includes(s.filingStatus)},
   {k:'spouseDob',l:"Spouse's date of birth",t:'date',show:s=>['mfj','mfs','qss'].includes(s.filingStatus)},
   {k:'state',l:'State of residence',t:'select',req:1,o:stOpts},
-  {k:'endAge',l:'Project to age',t:'select',o:[['90','90'],['100','100']],h:'The roadmap runs to 90 by default'}
- ]},
-
-{id:'m1',n:'Personal & family',lede:'Your family and when you plan to retire.',
- fields:[
-  {k:'hasDepChild',l:'Is any dependent a qualifying CHILD living with you?',t:'select',o:YN,h:'Affects the tax status of a surviving spouse'},
+  {k:'endAge',l:'Project to age',t:'select',o:[['90','90'],['100','100']],h:'The roadmap runs to 90 by default'},
+  {k:'depChildren',l:'Number of dependent children',t:'num',h:'Children under 18 (19 if still at school) can draw on your Social Security record'},
+  {k:'youngestChildAge',l:"Youngest child's age today",t:'num',show:s=>+(s.depChildren||0)>0},
+  {k:'hasDepChild',l:'Does a qualifying child live with you?',t:'select',o:YN,h:'A surviving spouse keeps joint tax rates for two years only if so'},
   {k:'retireAge',l:'Age you plan to fully retire',t:'num',req:1},
   {k:'workPartTime',l:'Will you work part-time after retiring?',t:'select',o:YN},
   {k:'ptIncome',l:'Expected part-time income (per year)',t:'money',show:s=>s.workPartTime==='y'},
   {k:'ptUntilAge',l:'Part-time until age',t:'num',show:s=>s.workPartTime==='y'}
  ]},
 
-{id:'m2',n:'Income, work & business',lede:'What you earn and how your business is set up.',
+{id:'s1',n:'Income & business',lede:'What you earn and how your business is set up.',
  fields:[
   {k:'w2',l:'Your annual W-2 wages',t:'money'},
   {k:'spouseW2',l:"Spouse's W-2 wages",t:'money',show:s=>['mfj','mfs'].includes(s.filingStatus)},
@@ -521,36 +544,48 @@ const SCHEMA=[
   {k:'bizW2',l:'W-2 wages the business pays (all employees)',t:'money',h:'Used to work out your business deduction at higher incomes'},
   {k:'bizUBIA',l:'Unadjusted basis of qualified business property',t:'money'},
   {k:'incomeGrowth',l:'Assumed annual income growth',t:'pct',h:'Default 3%'},
-  {k:'otherIncome',l:'Other income — royalties, side gigs (per year)',t:'money'}
+  {k:'otherIncome',l:'Other income — royalties, side gigs (per year)',t:'money'},
+  {k:'bizMP',l:'Do you materially participate in the business?',t:'select',o:YN,h:'Decides whether losses are passive, and whether the §199A minimum applies'}
  ]},
 
-{id:'m3',n:'Retirement accounts',lede:'Your retirement accounts and how much you put in each year.',
+{id:'s2',n:'Retirement & Social Security',lede:'Your retirement accounts and your expected benefit.',
+ fields:[
+  {k:'priorYearWages',l:'Prior-year wages from the plan sponsor',t:'money',h:'Above $150,000 your catch-up contribution has to be Roth'},
+  {k:'contribStrategy',l:'Contribution strategy',t:'select',o:[['','—'],['pretax','Maximise pre-tax'],['roth','Maximise Roth'],['split','Split between both']]},
+  {k:'retReturn',l:'Assumed return on retirement accounts',t:'pct',h:'Default 6.5% nominal'},
+  {k:'advisoryFee',l:'Advisory + fund fees',t:'pct',h:'Reduces your net investment return'},
+  {k:'ssSource',l:'How should we get your benefit?',t:'select',req:1,o:[['','—'],['stmt','From my SSA statement (most accurate)'],['calc','Estimate it from my earnings']]},
+  {k:'ssAtFRA',l:'Monthly benefit at full retirement age',t:'money',show:s=>s.ssSource==='stmt',h:'From your SSA statement'},
+  {k:'aime',l:'Average Indexed Monthly Earnings (AIME)',t:'money',show:s=>s.ssSource==='calc',h:'Leave blank and we will estimate it from your income'},
+  {k:'ssClaimAge',l:'Age you intend to claim',t:'select',o:[['','—'],['62','62'],['63','63'],['64','64'],['65','65'],['66','66'],['67','67 (FRA)'],['68','68'],['69','69'],['70','70 (maximum)']]},
+  {k:'spouseSsAtFRA',l:"Spouse's monthly benefit at FRA",t:'money',show:s=>['mfj','mfs','qss'].includes(s.filingStatus)},
+  {k:'spouseClaimAge',l:"Spouse's claiming age",t:'num',show:s=>['mfj','mfs','qss'].includes(s.filingStatus)}
+ ],
  rep:{key:'accounts',label:'account',
   fields:[
    {k:'type',l:'Account type',t:'select',o:[['','—'],['t401k','Traditional 401(k)'],['r401k','Roth 401(k)'],['tira','Traditional IRA'],['rira','Roth IRA'],['sep','SEP IRA'],['simple','SIMPLE IRA'],['t403b','403(b)'],['t457','457(b)'],['hsa','HSA']]},
    {k:'balance',l:'Current balance',t:'money'},
    {k:'contrib',l:'Your annual contribution',t:'money'},
    {k:'employerMatch',l:'Employer contribution per year',t:'money'},
-  ]},
- fields:[
-  {k:'priorYearWages',l:'Prior-year wages from the plan sponsor',t:'money',h:'Above $150,000 your catch-up contribution has to be Roth'},
-  {k:'contribStrategy',l:'Contribution strategy',t:'select',o:[['','—'],['pretax','Maximise pre-tax'],['roth','Maximise Roth'],['split','Split between both']]},
-  {k:'retReturn',l:'Assumed return on retirement accounts',t:'pct',h:'Default 6.5% nominal'},
-  {k:'advisoryFee',l:'Advisory + fund fees',t:'pct',h:'Reduces your net investment return'}
- ]},
+  ]}},
 
-{id:'m4',n:'Social Security',lede:'Your Social Security benefit and when you plan to claim it.',
+{id:'s3',n:'Property & investments',lede:'Property you own, business interests, and your investment accounts.',
  fields:[
-  {k:'ssSource',l:'How should we get your benefit?',t:'select',req:1,o:[['','—'],['stmt','From my SSA statement (most accurate)'],['calc','Estimate it from my earnings']]},
-  {k:'ssAtFRA',l:'Monthly benefit at full retirement age',t:'money',show:s=>s.ssSource==='stmt',h:'From your SSA statement'},
-  {k:'aime',l:'Average Indexed Monthly Earnings (AIME)',t:'money',show:s=>s.ssSource==='calc',h:'Leave blank and we will estimate it from your income'},
-  {k:'ssClaimAge',l:'Age you intend to claim',t:'select',o:[['','—'],['62','62'],['63','63'],['64','64'],['65','65'],['66','66'],['67','67 (FRA)'],['68','68'],['69','69'],['70','70 (maximum)']]},
-  {k:'spouseSsAtFRA',l:"Spouse's monthly benefit at FRA",t:'money',show:s=>['mfj','mfs','qss'].includes(s.filingStatus)},
-  {k:'spouseClaimAge',l:"Spouse's claiming age",t:'num',show:s=>['mfj','mfs','qss'].includes(s.filingStatus)},
- ]},
-
-{id:'m5',n:'Real estate',lede:'Each property you own or rent out. Add one card per property.',
- rep:{key:'props',label:'property',
+  {k:'reps',l:'Do you or your spouse work in property full time?',t:'select',o:YN,h:'More than 750 hours AND more than half of all personal services in real property trades'},
+  {k:'repsAgg',l:'Have you elected to group all your rentals as one activity?',t:'select',o:YN,show:s=>s.reps==='y',h:'Without it, each property is tested on its own'},
+  {k:'reGrowth',l:'Assumed property appreciation',t:'pct',h:'Default 3.5% nominal'},
+  {k:'taxableBal',l:'Taxable brokerage balance',t:'money'},
+  {k:'taxableBasis',l:'Cost basis of that account',t:'money'},
+  {k:'taxableYield',l:'Annual dividends / interest',t:'money'},
+  {k:'taxableReturn',l:'Assumed return on taxable accounts',t:'pct',h:'Default 5.75%'},
+  {k:'capLossST',l:'Short-term capital loss carryforward',t:'money'},
+  {k:'capLossLT',l:'Long-term capital loss carryforward',t:'money'},
+  {k:'nol',l:'NOL carryforward',t:'money',h:'Can offset up to 80% of income in a later year'},
+  {k:'negQBI',l:'Negative QBI carryforward',t:'money'},
+  {k:'amtCredit',l:'Minimum tax credit carryforward',t:'money'},
+  {k:'muniInterest',l:'Tax-exempt (municipal) interest',t:'money',h:'Exempt from income tax, but it still counts toward taxing your Social Security and toward the Medicare surcharge'}
+ ],
+ reps:[{key:'props',label:'property',
   fields:[
    {k:'label',l:'Property name or address',t:'text'},
    {k:'state',l:'State',t:'select',o:stOpts},
@@ -562,7 +597,8 @@ const SCHEMA=[
    {k:'mortRate',l:'Mortgage interest rate',t:'pct'},
    {k:'mortTerm',l:'Months remaining on the loan',t:'num'},
    {k:'loanKind',l:'Loan type',t:'select',o:[['','—'],['bank','Bank / commercial lender (qualified nonrecourse)'],['seller','Seller or related-party financing'],['recourse','Personally guaranteed / recourse'],['none','No loan']],h:'Bank lending counts toward your at-risk amount; seller financing does not'},
-   {k:'rentType',l:'How is it let?',t:'select',o:[['','—'],['ltr','Long-term (leases)'],['str','Short-term (Airbnb / VRBO)'],['none','Not rented']]},
+   {k:'selfRental',l:'Is this let to your own business?',t:'select',o:YN,h:'Self-rental income is non-passive and cannot absorb other passive losses'},
+    {k:'rentType',l:'How is it let?',t:'select',o:[['','—'],['ltr','Long-term (leases)'],['str','Short-term (Airbnb / VRBO)'],['none','Not rented']]},
    {k:'avgStay',l:'Average length of each guest stay (days)',t:'num',show:s=>s.rentType==='str',h:'Stays of 7 days or fewer change how the loss can be used'},
    {k:'daysRented',l:'Days per year rented at market rate',t:'num',show:s=>s.rentType!=='none'&&s.rentType},
    {k:'personalDays',l:'Days per year you or family use it',t:'num',h:'Too much personal use limits what you can deduct'},
@@ -581,14 +617,7 @@ const SCHEMA=[
    {k:'atRisk',l:'Your at-risk amount',t:'money'},
    {k:'sellAge',l:'Age you plan to sell (blank = hold to death)',t:'num'}
   ]},
- fields:[
-  {k:'reps',l:'Do you or your spouse work in property full time?',t:'select',o:YN,h:'More than 750 hours AND more than half of all personal services in real property trades'},
-  {k:'repsAgg',l:'Have you elected to group all your rentals as one activity?',t:'select',o:YN,show:s=>s.reps==='y',h:'Without it, each property is tested on its own'},
-  {k:'reGrowth',l:'Assumed property appreciation',t:'pct',h:'Default 3.5% nominal'}
- ]},
-
-{id:'m6',n:'K-1s & investments',lede:'Partnership and S-corp interests, and your taxable investment accounts.',
- rep:{key:'k1s',label:'K-1 / entity',
+       {key:'k1s',label:'K-1 / entity',
   fields:[
    {k:'name',l:'Entity name',t:'text'},
    {k:'etype',l:'Entity type',t:'select',o:[['','—'],['part','Partnership / LLC (1065)'],['scorp','S-corporation (1120-S)']]},
@@ -604,20 +633,53 @@ const SCHEMA=[
    {k:'suspBasis',l:'Suspended basis losses carried in',t:'money'},
    {k:'suspAtRisk',l:'Suspended at-risk losses carried in',t:'money'},
    {k:'suspPassive',l:'Suspended passive losses carried in',t:'money'}
-  ]},
- fields:[
-  {k:'taxableBal',l:'Taxable brokerage balance',t:'money'},
-  {k:'taxableBasis',l:'Cost basis of that account',t:'money'},
-  {k:'taxableYield',l:'Annual dividends / interest',t:'money'},
-  {k:'taxableReturn',l:'Assumed return on taxable accounts',t:'pct',h:'Default 5.75%'},
-  {k:'capLossST',l:'Short-term capital loss carryforward',t:'money'},
-  {k:'capLossLT',l:'Long-term capital loss carryforward',t:'money'},
-  {k:'nol',l:'NOL carryforward',t:'money',h:'Can offset up to 80% of income in a later year'},
-  {k:'negQBI',l:'Negative QBI carryforward',t:'money'},
-  {k:'amtCredit',l:'Minimum tax credit carryforward',t:'money'}
- ]},
+  ]}]},
 
-{id:'m7',n:'Insurance & estate',lede:'Life insurance policies and what you want to leave behind.',
+{id:'s4',n:'Protection, health & life events',lede:'Insurance, living and medical costs, your estate, and events worth modelling.',
+ fields:[
+  {k:'otherAssets',l:'Other assets not listed elsewhere',t:'money',h:'Personal property, collectibles, cash'},
+  {k:'debts',l:'Total debts other than mortgages',t:'money'},
+  {k:'priorGifts',l:'Lifetime taxable gifts already made',t:'money'},
+  {k:'dsue',l:'Deceased spousal unused exclusion (DSUE) available',t:'money',h:'Only if a return was filed after the first death'},
+  {k:'heirRate',l:"Heirs' assumed marginal tax rate",t:'pct',h:'Default 35% — used for the income tax on inherited retirement accounts'},
+  {k:'monthlyMedical',l:'Monthly medical premiums and out-of-pocket',t:'money'},
+  {k:'hcInflation',l:'Assumed healthcare inflation',t:'pct',h:'Medical costs usually rise faster than general inflation'},
+  {k:'ltcPremium',l:'Qualified long-term care insurance premium (per year)',t:'money'},
+  {k:'expectLTC',l:'Should we model a long-term care period?',t:'select',o:YN},
+  {k:'ltcStartAge',l:'Assumed age care begins',t:'num',show:s=>s.expectLTC==='y'},
+  {k:'ltcYears',l:'Assumed years of care',t:'num',show:s=>s.expectLTC==='y'},
+  {k:'ltcAnnualCost',l:'Assumed annual care cost',t:'money',show:s=>s.expectLTC==='y',h:'Typically $75,000 to $150,000 a year'},
+  {k:'itemize',l:'Do you itemise deductions?',t:'select',o:YN},
+  {k:'monthlyExpenses',l:'Monthly lifestyle expenses (excluding medical)',t:'money',req:1},
+  {k:'inflation',l:'General inflation assumption',t:'pct',h:'Default 2.5%'},
+  {k:'retExpenseFactor',l:'Retirement expense factor',t:'pct',h:'Work costs disappear, so spending usually drops'},
+  {k:'mortgageInterest',l:'Annual mortgage interest on your home',t:'money',h:'An itemised deduction under §163(h)'},
+  {k:'charitable',l:'Annual charitable giving',t:'money',h:'Only the amount above 0.5% of your income is deductible if you itemise'},
+  {k:'modelDeath',l:'Model the death of a spouse?',t:'select',o:YN,h:'Models what happens to income and tax for the survivor'},
+  {k:'deathAge',l:'Your age when the first death occurs',t:'num',show:s=>s.modelDeath==='y'},
+  {k:'survivorFactor',l:'Survivor expense factor',t:'pct',show:s=>s.modelDeath==='y',h:'The house and its running costs remain'},
+  {k:'modelWindfall',l:'Model a one-time windfall (business sale, inheritance)?',t:'select',o:YN},
+  {k:'windfallAge',l:'Your age at the windfall',t:'num',show:s=>s.modelWindfall==='y'},
+  {k:'windfallAmt',l:'Amount',t:'money',show:s=>s.modelWindfall==='y'},
+  {k:'windfallBasis',l:'Your basis in what is sold',t:'money',show:s=>s.modelWindfall==='y'},
+  {k:'windfallQSBS',l:'Does it qualify for the small business stock exclusion?',t:'select',o:YN,show:s=>s.modelWindfall==='y',h:'Qualifying gain does not raise your Medicare premium'},
+  {k:'modelDivorce',l:'Model a divorce?',t:'select',o:YN},
+  {k:'divorceAge',l:'Your age at divorce',t:'num',show:s=>s.modelDivorce==='y'},
+  {k:'rothConv',l:'Model annual Roth conversions before withdrawals start?',t:'select',o:YN,h:'The years before withdrawals start are usually the cheapest to convert'},
+  {k:'rothConvMode',l:'How much to convert each year',t:'select',show:s=>s.rothConv==='y',
+   o:[['amount','A fixed amount each year'],
+      ['bracket','Fill up to the top of a tax bracket'],
+      ['irmaa','Fill up to just under a Medicare surcharge tier']],
+   h:'Filling to a ceiling converts the most that can be done at a known rate. A fixed amount ignores how much room there actually is.'},
+  {k:'rothConvAmt',l:'Annual conversion amount',t:'money',show:s=>s.rothConv==='y'&&(s.rothConvMode||'amount')==='amount'},
+  {k:'rothConvBracket',l:'Fill up to the top of this bracket',t:'select',show:s=>s.rothConv==='y'&&s.rothConvMode==='bracket',
+   o:[['12','12%'],['22','22%'],['24','24%'],['32','32%'],['35','35%']],
+   h:'Converts as much as fits below the ceiling, and nothing in a year where there is no room'},
+  {k:'rothConvTier',l:'Stay below this Medicare surcharge tier',t:'select',show:s=>s.rothConv==='y'&&s.rothConvMode==='irmaa',
+   o:[['1','Tier 1 — stay at the standard premium'],['2','Tier 2'],['3','Tier 3'],['4','Tier 4'],['5','Tier 5']],
+   h:'The surcharge is a cliff set by income from two years earlier, so stopping just below a tier is worth the whole tier'},
+  {k:'rothConvMax',l:'Cap the annual conversion at (optional)',t:'money',show:s=>s.rothConv==='y'&&(s.rothConvMode==='bracket'||s.rothConvMode==='irmaa')}
+ ],
  rep:{key:'policies',label:'policy',
   fields:[
    {k:'ptype',l:'Policy type',t:'select',o:[['','—'],['term','Term'],['whole','Whole life'],['ul','Universal life'],['iul','Indexed universal life'],['vul','Variable universal life']]},
@@ -632,58 +694,9 @@ const SCHEMA=[
    {k:'transferred3yr',l:'Transferred into a trust within the last 3 years?',t:'select',o:YN,h:'A recent transfer still counts toward your estate'},
    {k:'isMEC',l:'Is the policy a MEC?',t:'select',o:YN,h:'If yes, loans from the policy become taxable'},
    {k:'planLoans',l:'Annual loan you plan to take in retirement',t:'money'}
-  ]},
- fields:[
-  {k:'otherAssets',l:'Other assets not listed elsewhere',t:'money',h:'Personal property, collectibles, cash'},
-  {k:'debts',l:'Total debts other than mortgages',t:'money'},
-  {k:'priorGifts',l:'Lifetime taxable gifts already made',t:'money'},
-  {k:'dsue',l:'Deceased spousal unused exclusion (DSUE) available',t:'money',h:'Only if a return was filed after the first death'},
-  {k:'heirRate',l:"Heirs' assumed marginal tax rate",t:'pct',h:'Default 35% — used for the income tax on inherited retirement accounts'}
- ]},
+  ]}},
 
-{id:'m8',n:'Healthcare & Medicare',lede:'Living costs, medical costs, and long-term care if you want it modelled.',
- fields:[
-  {k:'monthlyMedical',l:'Monthly medical premiums and out-of-pocket',t:'money'},
-  {k:'hcInflation',l:'Assumed healthcare inflation',t:'pct',h:'Medical costs usually rise faster than general inflation'},
-  {k:'ltcPremium',l:'Qualified long-term care insurance premium (per year)',t:'money'},
-  {k:'expectLTC',l:'Should we model a long-term care period?',t:'select',o:YN},
-  {k:'ltcStartAge',l:'Assumed age care begins',t:'num',show:s=>s.expectLTC==='y'},
-  {k:'ltcYears',l:'Assumed years of care',t:'num',show:s=>s.expectLTC==='y'},
-  {k:'ltcAnnualCost',l:'Assumed annual care cost',t:'money',show:s=>s.expectLTC==='y',h:'Typically $75,000 to $150,000 a year'},
-  {k:'itemize',l:'Do you itemise deductions?',t:'select',o:YN},
-  {k:'monthlyExpenses',l:'Monthly lifestyle expenses (excluding medical)',t:'money',req:1},
-  {k:'inflation',l:'General inflation assumption',t:'pct',h:'Default 2.5%'},
-  {k:'retExpenseFactor',l:'Retirement expense factor',t:'pct',h:'Work costs disappear, so spending usually drops'}
- ]},
-
-
-{id:'m9',n:'Life events to model',lede:'Things that may change during retirement and that you want included.',
- fields:[
-  {k:'modelDeath',l:'Model the death of a spouse?',t:'select',o:YN,h:'Models what happens to income and tax for the survivor'},
-  {k:'deathAge',l:'Your age when the first death occurs',t:'num',show:s=>s.modelDeath==='y'},
-  {k:'survivorFactor',l:'Survivor expense factor',t:'pct',show:s=>s.modelDeath==='y',h:'The house and its running costs remain'},
-  {k:'modelWindfall',l:'Model a one-time windfall (business sale, inheritance)?',t:'select',o:YN},
-  {k:'windfallAge',l:'Your age at the windfall',t:'num',show:s=>s.modelWindfall==='y'},
-  {k:'windfallAmt',l:'Amount',t:'money',show:s=>s.modelWindfall==='y'},
-  {k:'windfallBasis',l:'Your basis in what is sold',t:'money',show:s=>s.modelWindfall==='y'},
-  {k:'windfallQSBS',l:'Does it qualify for the small business stock exclusion?',t:'select',o:YN,show:s=>s.modelWindfall==='y',h:'Qualifying gain does not raise your Medicare premium'},
-  {k:'modelDivorce',l:'Model a divorce?',t:'select',o:YN},
-  {k:'divorceAge',l:'Your age at divorce',t:'num',show:s=>s.modelDivorce==='y'},
-  {k:'rothConv',l:'Model annual Roth conversions before withdrawals start?',t:'select',o:YN,h:'The years before withdrawals start are usually the cheapest to convert'},
-  {k:'rothConvAmt',l:'Annual conversion amount',t:'money',show:s=>s.rothConv==='y'}
- ]},
-
-
-{id:'m10',n:'Tax savings & Deployable Wealth Capital',lede:'Approved tax savings and how they are deployed across your capital buckets.',
- rep:{key:'strategies',label:'approved strategy',
-  fields:[
-   {k:'strategyName',l:'Strategy name',t:'text'},
-   {k:'federalTaxSavings',l:'Federal tax savings (per year)',t:'money'},
-   {k:'stateTaxSavings',l:'State tax savings (per year)',t:'money'},
-   {k:'investmentAmount',l:'Investment required',t:'money'},
-   {k:'startYear',l:'Start year',t:'num'},
-   {k:'endYear',l:'End year',t:'num'}
-  ]},
+{id:'s5',n:'Tax savings & review',lede:'Approved strategies and how the savings are deployed. Then check and run.',
  fields:[
   {k:'taxSavings',l:'Total approved net tax savings (per year)',t:'money',
    h:'Use this if you have not listed strategies above'},
@@ -711,9 +724,16 @@ const SCHEMA=[
    h:'Choose the growth assumptions to project'},
   {k:'strategyEffectiveness',l:'Strategy effectiveness',t:'pct',
    h:'How much of the saving you expect to actually achieve'}
- ]},
-
-{id:'m11',n:'Review & run',lede:'Check your details, then run the projection.',fields:[],review:1}
+ ],
+ rep:{key:'strategies',label:'approved strategy',
+  fields:[
+   {k:'strategyName',l:'Strategy name',t:'text'},
+   {k:'federalTaxSavings',l:'Federal tax savings (per year)',t:'money'},
+   {k:'stateTaxSavings',l:'State tax savings (per year)',t:'money'},
+   {k:'investmentAmount',l:'Investment required',t:'money'},
+   {k:'startYear',l:'Start year',t:'num'},
+   {k:'endYear',l:'End year',t:'num'}
+  ]},review:1}
 ];
 /* ==========================================================================
    PART C — ENGINE.  Implements the 22-step year loop from research/MASTER-GUIDE.md
@@ -727,6 +747,10 @@ const SCENARIOS={
 };
 const N=x=>{const v=parseFloat(String(x??'').replace(/[$,\s%]/g,''));return isFinite(v)?v:0;};
 const R=x=>Math.round(x);
+/* Default ONLY when the field is blank.  `N(x)||d` silently overrides a deliberate
+   zero — a client who sets 0% inflation was being given 2.5%. */
+const NUM=(v,d)=>{const s=String(v??'').trim(); if(s==='')return d;
+                  const n=N(s); return isFinite(n)?n:d;};
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const yrOf=d=>d?new Date(d).getFullYear():0;
 const ageOn=(dob,y)=>dob?y-yrOf(dob):0;
@@ -805,22 +829,25 @@ function catchUp(age){return(age>=60&&age<=63)?C.LIM.cu6063:(age>=50?C.LIM.cu50:
 function limit401k(age,infl){return(C.LIM.d401k+catchUp(age))*infl;}
 
 /* --- Step 12: QBI with the SSTB phase-out --- */
-function qbiDeduction(qbi,taxableBefore,netCapGain,isSSTB,fs,infl,w2,ubia){
-  if(qbi<=0)return 0;
+function qbiDeduction(qbi,taxableBefore,netCapGain,isSSTB,fs,infl,w2,ubia,activeQbi){
+  /* §199A(i), OBBBA §70105: where aggregate ACTIVE qualified business income is at
+     least $1,000, the deduction is the GREATER of the computed amount or $400. */
+  const floor=(activeQbi&&qbi>=C.QBI.minQbi)?C.QBI.min:0;
+  if(qbi<=0)return floor;
   const thr=C.QBI.thr[fs]*infl, end=C.QBI.end[fs]*infl;
   const cap=C.QBI.rate*Math.max(0,taxableBefore-netCapGain);
-  if(taxableBefore<=thr)return Math.min(C.QBI.rate*qbi,cap);
+  if(taxableBefore<=thr)return Math.max(floor,Math.min(C.QBI.rate*qbi,cap));
   const phase=clamp((taxableBefore-thr)/(end-thr),0,1);
   if(isSSTB){
-    if(phase>=1)return 0;                                  // fully phased out
+    if(phase>=1)return floor;                             // fully phased out
     const applic=1-phase;
-    return Math.min(C.QBI.rate*qbi*applic,cap*applic);
+    return Math.max(floor,Math.min(C.QBI.rate*qbi*applic,cap*applic));
   }
   // non-SSTB: W-2 wage / UBIA limit phases in
   const wageLimit=Math.max(0.50*w2,0.25*w2+0.025*ubia);
   const full=C.QBI.rate*qbi;
   const limited=Math.min(full,wageLimit);
-  return Math.min(full-(full-limited)*phase,cap);
+  return Math.max(floor,Math.min(full-(full-limited)*phase,cap));
 }
 /* --- Step 13: NIIT. Thresholds frozen since 2013 --- */
 function niitOf(nii,magi,fs){
@@ -891,6 +918,71 @@ function coiPer1000(age){
   if(age<85)return 88.0; if(age<90)return 148.0; if(age<95)return 240.0;
   return 380.0;
 }
+/* --- §203(a) family maximum.  Caps TOTAL benefits on one earnings record.
+       The worker's own benefit is never reduced; auxiliaries absorb the cap. --- */
+function famMax(pia){
+  const F=C.FAMMAX;
+  const t = F.r1*Math.min(pia,F.b1)
+          + F.r2*Math.max(0,Math.min(pia,F.b2)-F.b1)
+          + F.r3*Math.max(0,Math.min(pia,F.b3)-F.b2)
+          + F.r4*Math.max(0,pia-F.b3);
+  return Math.floor(t*10)/10;
+}
+
+/* --- Survivor FRA is NOT retirement FRA.  Separate schedule. --- */
+function survFraFor(birthYear){
+  if(birthYear<=1956)return 66;
+  if(birthYear>=1962)return 67;
+  return C.SURV_FRA[birthYear] ?? 67;
+}
+
+/* --- Survivor reduction: max 28.5% at 60, spread to survivor FRA.
+       At survivor FRA 67 this is 19/56 of 1% a month. --- */
+function survivorFactor(claimAge,survFra){
+  if(claimAge>=survFra)return 1;
+  const a=Math.max(60,claimAge);
+  const totalMonths=Math.round((survFra-60)*12);
+  const early=Math.round((survFra-a)*12);
+  const perMonth=(1-C.SS.survivorAt60)/totalMonths;      // 0.285 / months
+  return 1-perMonth*early;
+}
+
+/* --- RIB-LIM, POMS RS 00615.320.  The survivor benefit is LIMITED TO the
+       larger of 82.5% of the deceased's PIA or what the deceased was entitled to.
+       It is a CEILING; the 82.5% is a floor inside it. --- */
+function ribLim(deceasedPIA,deceasedClaimAge,fra){
+  const actual = deceasedPIA*claimAdj(deceasedClaimAge,fra);
+  return Math.max(0.825*deceasedPIA, actual);
+}
+
+/* --- §164(b)(7): a SCHEDULE plus a 30% phasedown, not a CPI-indexed cap. --- */
+function saltCapFor(year,magi,fs){
+  const S=C.SALT, half=(fs==='mfs')?0.5:1;
+  let base;
+  if(year>=S.revertYear)      base=S.revertAmt;
+  else if(year<=2025)         base=S.y2025;
+  else if(year<=S.lastScheduledYear)
+                              base=S.y2026*Math.pow(S.growth,year-2026);
+  else                        base=S.revertAmt;
+  base*=half;
+  const floor=S.floor*half;
+  if(year>=S.revertYear)return base;                     // no phasedown after reversion
+  const thr=S.phaseThr2026*Math.pow(S.phaseGrowth,Math.max(0,year-2026))*half;
+  const reduced=base-S.phaseRate*Math.max(0,magi-thr);
+  return Math.max(floor,reduced);
+}
+
+/* --- §68 as rewritten by OBBBA.  Applied AFTER every other limitation. --- */
+function sec68(itemized,taxableBefore68,fs,infl){
+  if(itemized<=0)return 0;
+  const tbl=C.BRACKETS[fs]||C.BRACKETS.single;
+  const top37=tbl[tbl.length-2][0]*infl;                 // floor of the 37% band
+  const increased=taxableBefore68+itemized;
+  const excess=Math.max(0,increased-top37);
+  const reduction=C.SEC68.frac*Math.min(itemized,excess);
+  return itemized-reduction;
+}
+
 /* --- LTC premium cap by age --- */
 function ltcCap(age){for(const[a,c]of C.LTC_CAP){if(age<=a)return c;}return 6200;}
 
@@ -902,18 +994,18 @@ function project(s){
   const startAge=ageOn(s.dob,baseYear)||42;
   const birthYear=yrOf(s.dob)||(C.YEAR-startAge);
   const endAge=+(s.endAge||90);
-  const retAge=N(s.retireAge)||65;
-  const infl=N(s.inflation)/100||.025;
-  const hcInfl=N(s.hcInflation)/100||.05;
+  const retAge=NUM(s.retireAge,65);
+  const infl=NUM(s.inflation,2.5)/100;
+  const hcInfl=NUM(s.hcInflation,5)/100;
   const SC=SCENARIOS[s.scenario||'expected'];
   const gGrow=(s.scenario?SC.incomeGrowth:N(s.incomeGrowth))/100||.03;
   const rRet=((s.scenario?SC.retirementReturn:N(s.retReturn))/100||.065)-(N(s.advisoryFee)/100||0);
-  const rTax=N(s.taxableReturn)/100||.0575;
+  const rTax=NUM(s.taxableReturn,5.75)/100;
   const rRE=(s.scenario?SC.realEstateReturn:N(s.reGrowth))/100||.035;
   const rmdAge=rmdAgeFor(birthYear);
-  const heirRate=N(s.heirRate)/100||.35;
-  const retFactor=N(s.retExpenseFactor)/100||.85;
-  const survFactor=N(s.survivorFactor)/100||.75;
+  const heirRate=NUM(s.heirRate,35)/100;
+  const retFactor=NUM(s.retExpenseFactor,85)/100;
+  const survFactor=NUM(s.survivorFactor,75)/100;
 
   /* ---- opening carryforward state ---- */
   let fs=s.filingStatus||'single';
@@ -934,7 +1026,7 @@ function project(s){
     _sB:N(k.suspBasis),_sA:N(k.suspAtRisk),_sP:N(k.suspPassive)}));
   const props=(s.props||[]).map(p=>{
     const price=N(p.price),land=N(p.land),bldg=Math.max(0,price-land);
-    return{...p,_bldg:bldg,_bal:N(p.mortBal),_val:N(p.value)||price,
+    return{...p,_bldg:bldg,_cost:price||N(p.value),_bal:N(p.mortBal),_val:N(p.value)||price,
       _accum:N(p.accumDep),_sP:N(p.suspPassive),
       _basis:N(p.basis)||price,_atRisk:N(p.atRisk)||price,
       _pay:mortPayment(N(p.mortBal),N(p.mortRate)/100,N(p.mortTerm)),
@@ -952,7 +1044,7 @@ function project(s){
   },0);
   const stratTotal=strat.reduce((t,x)=>t+N(x.federalTaxSavings)+N(x.stateTaxSavings),0);
   const netTaxSavings=stratTotal>0?stratInYear(baseYear):N(s.taxSavings);
-  const effectiveness=(N(s.strategyEffectiveness)||100)/100;
+  const effectiveness=(NUM(s.strategyEffectiveness,100))/100;
   const dwcPct=N(s.dwcPercent)/100;
   /* the formula printed on the roadmap: Net Tax Savings + DWC % x Qualified Deduction Base */
   const annualDWC=(netTaxSavings+dwcPct*N(s.qualifiedDeductionBase))*effectiveness;
@@ -962,13 +1054,14 @@ function project(s){
   const allocSum=Object.values(allocRaw).reduce((a,b)=>a+b,0);
   const alloc={};Object.keys(allocRaw).forEach(k=>alloc[k]=allocSum>0?allocRaw[k]/allocSum:0);
   const costDrag=(N(s.adminFeeCost)+N(s.costOfInvestment))/100;
-  const bucketRate={retirement:rRet-costDrag, insurance:(N(s.creditRate)/100||.055)-costDrag,
+  const bucketRate={retirement:rRet-costDrag, insurance:(NUM(s.creditRate,5.5)/100)-costDrag,
     realestate:rRE-costDrag, liquidity:rTax-costDrag,
     legacy:rTax-costDrag, disabilityLtc:rTax-costDrag};
   let bucket={retirement:0,insurance:0,realestate:N(s.currentRealEstateValue),
               liquidity:N(s.cashOnHand),legacy:0,disabilityLtc:0};
 
   const rows=[],notes=[];
+  let cumWithheldMonths=0, arfApplied=false, arfFactor=1, famMaxWarned=false, saleNoted=false;
   let widowed=false,divorced=false,ltcActive=false;
 
   for(let age=startAge;age<=endAge;age++){
@@ -1033,32 +1126,81 @@ function project(s){
       else pretaxContrib=total;
     }
 
-    /* ---------- STEP 4 — Social Security ---------- */
+    /* ---------- STEP 4 — Social Security ----------
+       §215(i): COLAs accrue from the year the worker attains 62, NOT from the
+       claiming age.  A claim-at-70 benefit already carries 8 years of increases. */
     let ss=0;
     const claim=+(s.ssClaimAge||67);
     const basePIA=s.ssSource==='stmt'?N(s.ssAtFRA):pia(N(s.aime)||(N(s.w2)/12*0.35));
     const spousePIA=N(s.spouseSsAtFRA);
-    let ssWithheld=0;
+    const spClaim=+(s.spouseClaimAge||67);
+    const survFra=survFraFor(birthYear);
+    let ssWithheld=0, ssGross=0;
     if(age>=claim&&(basePIA>0||spousePIA>0)){
-      const own=basePIA*claimAdj(claim,C.SS.fra)*12*Math.pow(1+C.SS.cola,age-claim);
-      /* spouse: the greater of their OWN benefit and the spousal benefit (50% of my PIA) */
-      let sp=0;
-      const spClaim=+(s.spouseClaimAge||67);
-      if(!widowed&&age>=spClaim){
+      const colaOwn=Math.pow(1+C.SS.cola,Math.max(0,age-62));      /* from 62, not claim */
+      const own=basePIA*claimAdj(claim,C.SS.fra)*12*colaOwn;
+
+      /* Auxiliary benefits on THIS record, before the §203(a) family maximum */
+      let sp=0, childTotal=0, auxUnreduced=0;
+      /* A spousal benefit requires an actual spouse.  Without the married test a
+         single filer was credited 50% of their own PIA as a phantom spousal benefit. */
+      if(married&&!widowed&&age>=spClaim){
         const spOwn=spousePIA*claimAdj(spClaim,C.SS.fra);
         const spSpousal=basePIA*spousalFactor(spClaim,C.SS.fra);
-        sp=Math.max(spOwn,spSpousal)*12*Math.pow(1+C.SS.cola,age-spClaim);
+        sp=Math.max(spOwn,spSpousal)*12*Math.pow(1+C.SS.cola,Math.max(0,age-62));
+        if(spSpousal>spOwn)auxUnreduced+=spSpousal*12*Math.pow(1+C.SS.cola,Math.max(0,age-62));
       }
+      /* §202(d)(2) children's benefits — 50% of PIA living, 75% surviving */
+      const kids=N(s.depChildren), kidAgeNow=N(s.youngestChildAge);
+      if(kids>0&&basePIA>0){
+        const kidAgeThen=kidAgeNow+n;
+        if(kidAgeThen<C.CHILD.ageOut){
+          const rate=widowed?C.CHILD.survivor:C.CHILD.living;
+          childTotal=kids*basePIA*rate*12*Math.pow(1+C.SS.cola,Math.max(0,age-62));
+          auxUnreduced+=childTotal;
+        }
+      }
+      /* §203(a) family maximum — caps the TOTAL on one record.  The worker's own
+         benefit is never reduced; auxiliaries are cut proportionately. */
+      let famCut=0;
+      if(auxUnreduced>0){
+        const fmAnnual=famMax(basePIA)*12*Math.pow(1+C.SS.cola,Math.max(0,age-62));
+        const room=Math.max(0,fmAnnual-(widowed?0:own));
+        if(auxUnreduced>room){
+          const factor=room/auxUnreduced;
+          famCut=auxUnreduced-room;
+          if(sp>0&&!widowed)sp*=factor;
+          childTotal*=factor;
+          if(!famMaxWarned){famMaxWarned=true;
+            notes.push({t:'w',y:year,m:`Age ${age}: the family maximum caps benefits on this record. ${money(famCut)} of spouse and children's benefits is not payable.`});}
+        }
+      }
+
       if(widowed){
-        /* survivor keeps the HIGHER of the two, never both — indexed off ITS OWN claim year */
-        const survivorOwn=spousePIA*12*Math.pow(1+C.SS.cola,Math.max(0,age-spClaim));
-        ss=Math.max(own,survivorOwn);
-      } else ss=own+sp;
-      /* earnings test — only on earned income, only before FRA */
+        /* Survivor: the HIGHER of the two, never both.  The survivor benefit is
+           capped by RIB-LIM and reduced for claiming before SURVIVOR FRA. */
+        const cap=ribLim(spousePIA,spClaim,C.SS.fra);
+        const survivorBen=cap*survivorFactor(Math.max(60,age),survFra)*12
+                          *Math.pow(1+C.SS.cola,Math.max(0,age-62));
+        ss=Math.max(own,survivorBen)+childTotal;
+      } else ss=own+sp+childTotal;
+
+      ssGross=ss;
+      /* Earnings test — only earned income, only before FRA */
       const et=earningsTest(ss,w2,age,C.SS.fra,iAdj);
       ss=et.paid; ssWithheld=et.withheld;
+      cumWithheldMonths+=(ssGross>0? (et.withheld/ssGross)*12 : 0);
       if(et.withheld>0&&!rows.some(r=>r.ssWithheld>0))
-        notes.push({t:'i',y:year,m:`Age ${age}: ${money(et.withheld)} of Social Security is withheld because of earnings. It is added back later.`});
+        notes.push({t:'i',y:year,m:`Age ${age}: ${money(et.withheld)} of Social Security is withheld because of earnings. It is restored at full retirement age.`});
+      /* §203, 20 CFR 404.430 — at FRA the benefit is recomputed upward for the
+         months withheld, by treating the claim as that many months later. */
+      if(age>=C.SS.fra&&cumWithheldMonths>0&&!arfApplied){
+        arfApplied=true;
+        const effClaim=Math.min(C.SS.fra,claim+cumWithheldMonths/12);
+        arfFactor=claimAdj(effClaim,C.SS.fra)/claimAdj(claim,C.SS.fra);
+        notes.push({t:'i',y:year,m:`Age ${age}: benefits withheld earlier are restored — the benefit rises ${((arfFactor-1)*100).toFixed(1)}% for life.`});
+      }
+      if(arfApplied)ss*=arfFactor;
     }
 
     /* ---------- STEP 5 — RMD (prior 31 Dec balance) ---------- */
@@ -1069,9 +1211,41 @@ function project(s){
     /* ---------- STEP 5b + 6-9 — property classification then the four gates ---------- */
     let reIncome=0,reAllowedLoss=0,reNonPassive=0,gateFail=false,k1CapGain=0;
     let passivePool=0,passiveIncome=0,nonPassiveBiz=0;
+    /* disposition results for this year */
+    let saleOrdinary=0,saleUnrecap=0,saleLTCG=0,saleProceeds=0,releasedPAL=0;
     props.forEach(p=>{
       if(p._sold)return;
-      if(N(p.sellAge)&&age>N(p.sellAge)){p._sold=true;return;}
+      /* ---------- DISPOSITION ----------
+         On sale: compute the gain, split it into §1245 ordinary recapture,
+         unrecaptured §1250 gain (25% ceiling) and §1231 gain, release the
+         suspended passive losses under §469(g), and pay the net proceeds
+         into the taxable account.  None of this happened before. */
+      if(N(p.sellAge)&&age>=N(p.sellAge)){
+        const amountRealised=p._val*(1-C.RE.sellCost);
+        const adjBasis=Math.max(0,p._cost-p._accum);
+        const gain=amountRealised-adjBasis;
+        if(gain>0){
+          /* Personal property and land improvements recapture as ORDINARY income
+             under §1245 to the extent of depreciation taken on them. */
+          const segShare=(N(p.segPct5)+N(p.segPct15))/100;
+          const dep1245=Math.min(p._accum*segShare,gain);
+          const dep1250=Math.min(Math.max(0,p._accum-dep1245),Math.max(0,gain-dep1245));
+          const s1231 =Math.max(0,gain-dep1245-dep1250);
+          saleOrdinary+=dep1245;         /* taxed at ordinary rates */
+          saleUnrecap +=dep1250;         /* §1(h)(1)(E) — 25% ceiling */
+          saleLTCG    +=s1231;           /* ordinary long-term rates */
+        } else {
+          saleLTCG+=gain;                /* a loss on disposition */
+        }
+        /* §469(g): a fully taxable disposition of the ENTIRE interest frees the
+           suspended passive losses and they become NON-passive. */
+        if(p._sP>0){releasedPAL+=p._sP; p._sP=0;}
+        /* Net cash after paying off the mortgage reaches the taxable account. */
+        saleProceeds+=Math.max(0,amountRealised-p._bal);
+        if(!saleNoted){saleNoted=true;
+          notes.push({t:'i',y:year,m:`Age ${age}: property sold. Gain of ${money(Math.max(0,gain))} is taxed, suspended losses are released, and ${money(Math.max(0,amountRealised-p._bal))} of net proceeds moves to your taxable account.`});}
+        p._sold=true;return;
+      }
       const cls=classifyProperty(p);
       const rent=N(p.rentIncome)*Math.pow(1+infl,n);
       const exp=N(p.expenses)*Math.pow(1+infl,n);
@@ -1087,7 +1261,13 @@ function project(s){
       const net=rent-exp-dep;
       if(cls.augusta)return;
       if(cls.blocked280A){ reIncome+=Math.max(0,rent-exp); return; }
-      if(net>=0){ if(cls.passive)passiveIncome+=net; else reNonPassive+=net; reIncome+=net; }
+      /* §1.469-2(f)(6) self-rental: net INCOME is recharacterised as non-passive,
+         so it cannot absorb other passive losses.  A net LOSS remains passive. */
+      const selfRental=(p.selfRental==='y');
+      if(net>=0){
+        if(cls.passive&&!selfRental)passiveIncome+=net; else reNonPassive+=net;
+        reIncome+=net;
+      }
       else{
         const g=runGates(-net,p._basis,p._atRisk,cls.passive,0,0);
         if(!g.ok)gateFail=true;
@@ -1146,11 +1326,19 @@ function project(s){
       const b=seIncome*C.SE.factor;
       const wageRoom=Math.max(0,C.FICA.wageBase*iAdj-w2);
       const seTax=Math.min(b,wageRoom)*C.SE.ssRate+b*C.SE.medRate;
-      payroll+=seTax; seDeductible=seTax*0.5;         /* IRC §164(f) */
+      /* §1401(b)(2): the 0.9% additional tax reaches SE income as well as wages,
+         against ONE threshold shared with wages (wages counted first). */
+      const addlRoom=Math.max(0,C.FICA.addlThr[fs]-w2);
+      const seAddl=Math.max(0,b-addlRoom)*C.FICA.addl;
+      payroll+=seTax+seAddl;
+      seDeductible=seTax*0.5;   /* §164(f) excludes the §1401(b)(2) tax */
     }
 
     /* ---------- STEP 10 — AGI ---------- */
     const portfolioInc=N(s.taxableYield)*Math.pow(1+infl,n);
+    /* Tax-exempt interest: excluded from income, but added back for BOTH the §86
+       provisional income test and the 20 CFR §418.1010 Medicare MAGI. */
+    const taxExemptInt=N(s.muniInterest)*Math.pow(1+infl,n);
     /* --- Realised capital gain on the taxable account ---
        The withdrawal depends on tax, and tax depends on the realised gain.  Resolved with
        ONE pre-pass: estimate the cash shortfall using the prior year's effective rate,
@@ -1168,12 +1356,80 @@ function project(s){
         realizedGain=take*gainFrac;
       }
     }
-    const rothConv=(s.rothConv==='y'&&!working&&age<rmdAge)?N(s.rothConvAmt):0;
     let capGain=Math.max(0,k1CapGain);
     if(windfall>0)capGain+=windfallQSBS?0:Math.max(0,windfall-windfallBasisAmt);
+    /* Disposition: §1245 recapture and released §469(g) losses are ORDINARY;
+       unrecaptured §1250 and §1231 gain are capital. */
+    capGain+=Math.max(0,saleLTCG);
+
+    /* ---------- Roth conversion ----------
+       A fixed dollar amount is the crude way to do this.  What planning software
+       actually does — and what this documentation teaches throughout — is fill the
+       room to a CEILING: the top of an ordinary bracket, or the Medicare surcharge
+       tier below the next one.  Both are supported.
+
+       The room depends on taxable income, which depends on the conversion, so this
+       uses ONE pre-pass on the same pattern as the realised-gain estimate above:
+       assemble the year without the conversion, then convert exactly the room left.
+       Not iterated to convergence — a second pass moves the answer by a few dollars. */
+    let rothConv=0;
+    if(s.rothConv==='y'&&!working&&age<rmdAge&&pretax>0){
+      const mode=s.rothConvMode||'amount';
+      if(mode==='amount'){
+        rothConv=N(s.rothConvAmt);
+      }else{
+        const other0=w2+bizAllowed+otherInc+rmd+portfolioInc+reIncome
+                     -passiveAllowed+capGain+realizedGain
+                     +saleOrdinary+saleUnrecap-releasedPAL-seDeductible;
+        const ssTax0=taxableSS(ss,other0,taxExemptInt,C.SS.taxThr[fs]||C.SS.taxThr.single);
+        const agi0=Math.max(0,other0+ssTax0);
+        if(mode==='irmaa'){
+          /* IRMAA is a ceiling on MAGI (AGI + tax-exempt interest), and it is a
+             CLIFF — stopping one dollar below a tier is the whole point. */
+          const tier=Math.max(1,Math.min(5,+(s.rothConvTier||1)));
+          const joint=['mfj','qss'].includes(fs);
+          /* irmaaOf compares raw MAGI against the raw tier figures, so the target
+             must use the SAME un-inflated ceiling or the client is pushed into the
+             very tier they asked to stay below. */
+          const ceil=(joint?C.MEDICARE.tiers[tier].j:C.MEDICARE.tiers[tier].s);
+          rothConv=Math.max(0,ceil-(agi0+taxExemptInt)-1);
+        }else{
+          /* Ordinary bracket ceiling, measured on TAXABLE income.
+             The senior deduction phases out against AGI, and AGI includes the
+             conversion, so the room is a fixed point rather than a subtraction.
+             Three passes converge to well under a dollar; overshooting the ceiling
+             would put income in the very bracket the client asked to stay out of. */
+          const target=+(s.rothConvBracket||22);
+          const tbl=C.BRACKETS[fs]||C.BRACKETS.single;
+          const hit=tbl.find(([,r])=>Math.round(r*100)===target);
+          const ceil=hit?hit[0]*iAdj:Infinity;
+          const dedAt=a=>{
+            let d=(C.STD[fs]||C.STD.single)*iAdj+(C.ADD65[fs]||0)*people65*iAdj;
+            if(year<=C.SENIOR.lastYear&&C.SENIOR.start[fs]!=null){
+              let q=(age>=65?1:0);
+              if(married&&!widowed&&ageOn(s.spouseDob,year)>=65)q++;
+              if(q>0)d+=Math.max(0,C.SENIOR.amt*q-C.SENIOR.rate*Math.max(0,a-C.SENIOR.start[fs]));
+            }
+            return d;
+          };
+          for(let i=0;i<4;i++){
+            const agiTry=agi0+rothConv;
+            rothConv=Math.max(0,ceil-Math.max(0,agiTry-dedAt(agiTry))+rothConv);
+          }
+          /* Land just UNDER the ceiling.  A dollar over sits in the next bracket,
+             which is the one the client asked to stay out of. */
+          {const a=agi0+rothConv, over=Math.max(0,a-dedAt(a))-ceil;
+           if(over>0)rothConv=Math.max(0,rothConv-over);}
+        }
+        const cap=N(s.rothConvMax);
+        if(cap>0)rothConv=Math.min(rothConv,cap);
+      }
+      rothConv=Math.min(rothConv,Math.max(0,pretax));   /* cannot convert more than exists */
+    }
     const otherForSS=w2+bizAllowed+otherInc+rmd+portfolioInc+reIncome
-                     -passiveAllowed+rothConv+capGain+realizedGain-seDeductible;
-    const ssTaxable=taxableSS(ss,otherForSS,0,C.SS.taxThr[fs]||C.SS.taxThr.single);
+                     -passiveAllowed+rothConv+capGain+realizedGain
+                     +saleOrdinary+saleUnrecap-releasedPAL-seDeductible;
+    const ssTaxable=taxableSS(ss,otherForSS,taxExemptInt,C.SS.taxThr[fs]||C.SS.taxThr.single);
     let agi=otherForSS+ssTaxable;
     /* NOL — 80% limit */
     const nolUsed=Math.min(nol,C.NOL_LIMIT*Math.max(0,agi));nol-=nolUsed;agi-=nolUsed;
@@ -1182,39 +1438,65 @@ function project(s){
     const capUsed=Math.min(capST+capLT,capAllow);
     if(capUsed>0){const fromST=Math.min(capST,capUsed);capST-=fromST;capLT-=(capUsed-fromST);agi-=capUsed;}
     agi=Math.max(0,agi);
-    magiHist[year]=agi;
+    magiHist[year]=agi+taxExemptInt;      /* 20 CFR §418.1010 */
     /* Medicare premiums for THIS year use MAGI from two years prior — compute now so the
        medical deduction below can include them (§213 allows Medicare premiums). */
     const irmaaPrior=age>=65?irmaaOf(magiHist[year-2]??agi,fs,(married&&!widowed)?2:1):0;
 
     /* ---------- STEP 11-12 — deductions, QBI, regular tax ---------- */
     let ded=(C.STD[fs]||C.STD.single)*iAdj+(C.ADD65[fs]||0)*people65*iAdj;
-    if(year<=C.SENIOR.lastYear&&age>=65){
-      const st=C.SENIOR.start[fs]*iAdj;
-      ded+=Math.max(0,C.SENIOR.amt*(married?2:1)-C.SENIOR.rate*Math.max(0,agi-st));
+    /* §151(d)(5)(C) senior deduction.  $6,000 per QUALIFIED individual — each must
+       be 65.  DENIED to married filing separately by (v).  Amounts NOT indexed. */
+    if(year<=C.SENIOR.lastYear&&C.SENIOR.start[fs]!=null){
+      let qualified=(age>=65?1:0);
+      if(married&&!widowed&&ageOn(s.spouseDob,year)>=65)qualified++;
+      if(qualified>0){
+        const st=C.SENIOR.start[fs];                    // not inflated — no indexing
+        ded+=Math.max(0,C.SENIOR.amt*qualified-C.SENIOR.rate*Math.max(0,agi-st));
+      }
     }
     /* medical / LTC deduction above 7.5% of AGI — IRC §213 */
     const ltcPrem=Math.min(N(s.ltcPremium),ltcCap(age));
     const medTotal=health+ltcCost+ltcPrem+irmaaPrior;   /* Medicare premiums count — §213 */
     const medDed=(s.itemize==='y'||ltcCost>0)?Math.max(0,medTotal-C.MED_FLOOR*agi):0;
     const stdDed=ded;                                   // standard + age-65 + senior bonus
-    const saltCap=40000*iAdj;                           // OBBBA SALT cap
+    /* §164(b)(7): scheduled amount, 30% phasedown, $10,000 floor, reverts 2030 */
+    const saltCap=saltCapFor(year,agi,fs);
     const saltPaid=Math.min(saltCap,agi*(C.STATE[s.state]??0));
-    const itemized=medDed+saltPaid;
+    /* §163(h) qualified residence interest and §170 charitable, less the 0.5% floor */
+    const mortInt=N(s.mortgageInterest)*Math.pow(1+infl,n);
+    const givingRaw=N(s.charitable)*Math.pow(1+infl,n);
+    const giving=Math.max(0,givingRaw-C.CHAR_FLOOR*agi);   // §170(b)(1)(I)
+    let itemized=medDed+saltPaid+mortInt+giving;
+    /* §68 is applied AFTER every other limitation */
+    itemized=sec68(itemized,Math.max(0,agi-itemized),fs,iAdj);
     const useItemized=itemized>stdDed;
     ded=useItemized?itemized:stdDed;
+    /* §170(p): non-itemisers deduct up to $1,000 / $2,000 of CASH gifts */
+    if(!useItemized&&givingRaw>0)
+      ded+=Math.min(givingRaw,C.CHAR_NONITEM[fs]||C.CHAR_NONITEM.single);
     let tiBefore=Math.max(0,agi-ded);
     const isSSTB=C.SSTB_YES.includes(s.bizField);
     const qbiRaw=Math.max(0,bizAllowed)+negQBI;
     const qbiDed=qbiDeduction(Math.max(0,qbiRaw),tiBefore,capGain,isSSTB,fs,iAdj,
-                              N(s.bizW2)*Math.pow(1+gGrow,n),N(s.bizUBIA));
+                              N(s.bizW2)*Math.pow(1+gGrow,n),N(s.bizUBIA),
+                              s.bizMP!=='n');
     if(qbiRaw<0){negQBI=qbiRaw;} else negQBI=0;
     const ti=Math.max(0,tiBefore-qbiDed);
+    /* §1(h) has FOUR components.  Unrecaptured §1250 gain is capped at 25% and is
+       taxed at the lower of that ceiling and the taxpayer's own marginal rate. */
+    const unrecapInTI=Math.min(saleUnrecap,ti);
     const totalGains=Math.max(0,capGain+realizedGain);
-    const gainsInTI=Math.min(totalGains,ti);          /* cannot exceed taxable income */
-    const ordinaryTI=Math.max(0,ti-gainsInTI);
-    const fed=bracketTax(ordinaryTI,C.BRACKETS[fs]||C.BRACKETS.single,iAdj)
-             +ltcgTax(ordinaryTI,gainsInTI,C.LTCG[fs]||C.LTCG.single,iAdj);
+    const gainsInTI=Math.min(totalGains,Math.max(0,ti-unrecapInTI));
+    const ordinaryTI=Math.max(0,ti-gainsInTI-unrecapInTI);
+    const ordTax=bracketTax(ordinaryTI,C.BRACKETS[fs]||C.BRACKETS.single,iAdj);
+    /* the 25% figure is a CEILING, not a flat rate */
+    const marginalOnUnrecap=unrecapInTI>0
+      ? (bracketTax(ordinaryTI+unrecapInTI,C.BRACKETS[fs]||C.BRACKETS.single,iAdj)-ordTax)/unrecapInTI
+      : 0;
+    const unrecapTax=unrecapInTI*Math.min(C.CG_CEIL.unrecap1250,marginalOnUnrecap);
+    const fed=ordTax+unrecapTax
+             +ltcgTax(ordinaryTI+unrecapInTI,gainsInTI,C.LTCG[fs]||C.LTCG.single,iAdj);
 
     /* ---------- payroll ---------- */
     /* payroll + SE tax were computed before AGI — see above */
@@ -1223,7 +1505,7 @@ function project(s){
     /* Net investment income has its OWN definition.  Passive business income counts;
        wages, self-employment income, Social Security and retirement distributions do not. */
     const netPassiveForNII=Math.max(0,passiveIncome-passiveAllowed);
-    const nii=Math.max(0,portfolioInc+Math.max(0,capGain)+realizedGain+netPassiveForNII);
+    const nii=Math.max(0,portfolioInc+Math.max(0,capGain)+realizedGain+saleUnrecap+netPassiveForNII);
     const niit=niitOf(nii,agi,fs);
 
     /* ---------- STEP 14 — AMT (parallel rail) ----------
@@ -1243,9 +1525,10 @@ function project(s){
     const stTI=Math.max(0,ti-(stTaxesSS?0:ssTaxable));
     const stateTax=stTI*stRate;
 
-    /* ---------- IRMAA (MAGI from two years prior) ---------- */
+    /* ---------- IRMAA (MAGI from two years prior) ----------
+       20 CFR §418.1010: MAGI here is AGI PLUS tax-exempt interest. */
     let irmaa=irmaaPrior;
-    if(age>=65){const m2=magiHist[year-2]??agi;
+    if(age>=65){const m2=magiHist[year-2]??(agi+taxExemptInt);
       irmaa=irmaaPrior;   /* already computed above, from the same two-year-prior MAGI */
       const joint=['mfj','qss'].includes(fs);
       const t1=joint?C.MEDICARE.tiers[1].j:C.MEDICARE.tiers[1].s;
@@ -1258,14 +1541,16 @@ function project(s){
 
     /* ---------- STEP 15 — cash flow ---------- */
     const income=w2+bizAllowed+otherInc+ss+rmd+portfolioInc+reIncome+windfall;
+    /* saleProceeds are capital, not income — added to the balance sheet below */
     let surplus=income-expenses-totalTax-pretaxContrib-rothContrib;
 
     /* ---------- STEP 16 — growth, then withdrawals ---------- */
     pretax=pretax*(1+rRet)+pretaxContrib*Math.pow(1+rRet,.5)-rmd-rothConv;
     roth=roth*(1+rRet)+rothContrib*Math.pow(1+rRet,.5)+rothConv;
     const taxGrowth=taxable*rTax;
-    taxable=taxable+taxGrowth+Math.max(0,surplus);
-    taxableBasis+=Math.max(0,surplus);                 /* contributions add basis */
+    taxable=taxable+taxGrowth+Math.max(0,surplus)+saleProceeds;
+    /* Sale proceeds arrive with full basis — the gain was taxed this year. */
+    taxableBasis+=Math.max(0,surplus)+saleProceeds;
     if(surplus<0){
       let need=-surplus;
       const takeT=Math.min(taxable,need);
@@ -1447,33 +1732,40 @@ function repSummary(key,it){
     it.balance?m(it.balance):''].filter(Boolean).join(' · ');
   return '';
 }
+/* A step may declare rep:{...} or reps:[{...},{...}] */
+function repsOf(m){ return m.reps ? m.reps : (m.rep ? [m.rep] : []); }
+
 function renderStep(){
   const m=SCHEMA[step];
   let h=`<div class="card"><h2><span class="mnum">Module ${step}</span> ${esc(m.n)}</h2>
     <p class="lede">${esc(m.lede)}</p>`;
 
-  if(m.review){ h+=reviewHtml(); }
-  else{
+  {
     if(m.fields.length) h+=`<div class="grid">`+m.fields.map(f=>field(f,state[f.k],f.k)).join('')+`</div>`;
-    if(m.rep){
-      const key=m.rep.key, list=state[key]||[];
-      h+=`<fieldset style="margin-top:16px"><legend>${esc(m.rep.label)}s — ${list.length} added</legend>`;
+    /* a step may hold SEVERAL repeatable sections (properties AND K-1s, say) */
+    repsOf(m).forEach(rep=>{
+      const key=rep.key, list=state[key]||[];
+      if(rep.heading)h+=`<h3 class="sub">${esc(rep.heading)}</h3>`;
+      if(rep.fields2&&rep.fields2.length)
+        h+=`<div class="grid">`+rep.fields2.map(f=>field(f,state[f.k],f.k)).join('')+`</div>`;
+      h+=`<fieldset style="margin-top:16px"><legend>${esc(rep.label)}s — ${list.length} added</legend>`;
       if(!list.length)h+=`<div class="empty"><div style="font-size:1.6rem;opacity:.35;margin-bottom:4px">+</div>
-        <b>No ${esc(m.rep.label)}s yet</b><br>
-        <span style="font-size:.8rem">Add one if it applies to you — otherwise move on. This module is optional.</span></div>`;
+        <b>No ${esc(rep.label)}s yet</b><br>
+        <span style="font-size:.8rem">Add one if it applies to you — otherwise move on. This part is optional.</span></div>`;
       list.forEach((item,i)=>{
-        h+=`<div class="rep"><div class="rep-hd"><strong>${esc(m.rep.label)} ${i+1}</strong>
+        h+=`<div class="rep"><div class="rep-hd"><strong>${esc(rep.label)} ${i+1}</strong>
           <small>${esc(repSummary(key,item))}</small>
           <button class="btn-sec btn-sm" data-dup="${key}:${i}">Duplicate</button>
           <button class="btn-danger btn-sm" data-del="${key}:${i}">Remove</button></div>
           <div class="grid">`+
-          m.rep.fields.map(f=>{
+          rep.fields.map(f=>{
             if(f.show&&!f.show(item))return '';
             return field({...f,show:null},item[f.k],`${key}[${i}].${f.k}`);
           }).join('')+`</div></div>`;
       });
-      h+=`<button class="btn-sec btn-sm" data-add="${key}">+ Add ${esc(m.rep.label)}</button></fieldset>`;
-    }
+      h+=`<button class="btn-sec btn-sm" data-add="${key}">+ Add ${esc(rep.label)}</button></fieldset>`;
+    });
+    if(m.review) h+=`<h3 class="sub">Check your details</h3>`+reviewHtml();
   }
   h+=`</div>`;
   $('wizard').innerHTML=h;
@@ -1488,7 +1780,8 @@ function renderStep(){
 
 function moduleFill(m){
   const fs=(m.fields||[]).filter(f=>!f.show||f.show(state));
-  if(!fs.length)return m.rep?((state[m.rep.key]||[]).length?1:0):1;
+  const reps=repsOf(m);
+  if(!fs.length)return reps.length?(reps.some(r=>(state[r.key]||[]).length)?1:0):1;
   const done=fs.filter(f=>{const v=state[f.k];return v!==undefined&&v!=='';}).length;
   return done/fs.length;
 }
