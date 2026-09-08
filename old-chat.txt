@@ -1,0 +1,244 @@
+Bilkul. Main isay **sirf real-life cases/scenarios** ki form mein rakh raha hoon — no long definitions.
+
+**Important:** Aap ne IRS/Google se current 2026 verification maangi hai. Is chat mein live web search disabled hai, is liye main **current 2026 IRS pages ko live verify nahi kar sakta**. Neeche woh IRS rules hain jo meri available knowledge mein established hain; exact 2026 filing decision ke liye latest IRS publication/plan document se confirm karna zaroori hai.
+
+# Traditional 401(k) — Retirement ke baad important cases
+
+### Case 1 — Age 60, normal withdrawal
+
+**401(k) = $500,000**
+→ $50,000 nikala
+→ **10% early penalty nahi**
+→ $50,000 generally **ordinary income** mein add hoga
+→ income-tax bracket ke according tax pay.
+
+---
+
+### Case 2 — Age 55 par job chhor di
+
+**Age = 55**
+→ employer ki 401(k) se withdrawal
+→ **Rule of 55 exception** apply kar sakti hai
+→ qualifying plan distribution par **10% additional tax avoid ho sakta hai**
+→ ordinary income tax phir bhi generally lagega.
+
+---
+
+### Case 3 — Age 45, emergency mein $20,000 nikala
+
+→ $20,000 distribution
+→ generally ordinary income tax
+→ plus **10% additional tax**
+→ $2,000 additional tax potentially.
+
+---
+
+### Case 4 — Age 45, rollover kar diya
+
+Old employer 401(k) = **$100,000**
+→ direct rollover to Traditional IRA / another eligible retirement plan
+→ **current tax generally $0**
+→ **10% early-distribution tax generally $0**
+→ paisa retirement account mein hi rehta hai.
+
+---
+
+### Case 5 — 401(k) ka cheque khud receive kiya
+
+401(k) = **$100,000**
+→ check aapko personally mila
+→ eligible rollover distribution par generally **20% federal withholding** ho sakti hai
+→ full rollover karne ke liye withheld amount ko replace karna pad sakta hai
+→ sahi rollover timing miss hui to taxable distribution ban sakti hai.
+
+---
+
+### Case 6 — 59½ se pehle medical reason
+
+Age = **50**
+→ qualifying unreimbursed medical expenses ke liye distribution
+→ applicable exception ho to **10% additional tax avoid ho sakta hai**
+→ taxable portion par normal income tax still possible.
+
+---
+
+### Case 7 — Permanent disability
+
+Age = **48**
+→ qualifying disability
+→ retirement-plan distribution
+→ **10% additional tax exception** potentially available
+→ taxable amount par income tax generally still applies.
+
+---
+
+### Case 8 — 72/73/75 ke baad paisa bilkul nahi nikala
+
+→ required minimum distributions (RMDs) start hone ke baad required amount nahi nikala
+→ **excise tax risk**
+→ missed RMD ko correct karna + applicable IRS rules follow karna hota hai.
+
+---
+
+### Case 9 — Retirement ke baad bhi kaam kar raha ho
+
+Age = **74**
+→ employer ke 401(k) mein abhi bhi working
+→ plan rules aur ownership status matter karte hain
+→ **still-working exception** certain situations mein current employer plan ke RMD ko delay kar sakti hai
+→ previous employer ke old 401(k) par same treatment automatically assume nahi karna.
+
+---
+
+### Case 10 — Employer ke stock ke saath retire hua
+
+401(k) mein company stock ki value: **$100,000**
+Cost basis: **$30,000**
+→ qualifying **Net Unrealized Appreciation (NUA)** strategy possible
+→ stock ko special treatment mil sakta hai
+→ pura amount normal ordinary-income treatment mein nahi aata
+→ wrong execution se major tax difference ho sakta hai.
+
+---
+
+### Case 11 — 401(k) loan liya, phir job chhor di
+
+401(k) loan balance = **$30,000**
+→ job leave ki
+→ loan properly repay nahi hua
+→ outstanding amount **deemed distribution** ban sakta hai
+→ income tax
+→ age 59½ se pehle ho aur exception na ho to **10% additional tax** bhi possible.
+
+---
+
+### Case 12 — Hardship withdrawal
+
+Age = **40**
+→ $25,000 hardship withdrawal
+→ amount generally taxable
+→ hardship hone ka matlab automatically **10% additional tax se exemption nahi**.
+
+---
+
+### Case 13 — Retirement mein tax kam rakhna
+
+Age = **60**
+Year income low hai
+→ Traditional 401(k) se **controlled amount** withdraw
+→ unnecessarily huge withdrawal avoid
+→ lower tax bracket mein portion taxable ho sakta hai
+→ baqi money account mein continue grow kar sakta hai.
+
+---
+
+### Case 14 — Ek hi saal mein bohat bara withdrawal
+
+401(k) = **$700,000**
+→ ek hi year mein $300,000 withdraw
+→ taxable income sharply increase
+→ higher marginal tax brackets mein portion ja sakta hai
+→ same money ko multiple years mein spread karne se tax result potentially better ho sakta hai.
+
+---
+
+### Case 15 — Traditional 401(k) → Roth conversion
+
+Traditional account = **$200,000**
+→ conversion to Roth
+→ converted taxable amount generally **current-year ordinary income**
+→ early-distribution penalty ka issue conversion ke mechanics se alag hota hai
+→ future qualified Roth withdrawals potentially tax-free.
+
+---
+
+### Case 16 — Low-income retirement year mein conversion
+
+Retirement year mein taxable income unusually low
+→ Traditional 401(k)/IRA se planned Roth conversion
+→ conversion amount current taxable income mein add
+→ relatively low bracket use karne ka opportunity
+→ future tax-deferred growth ko Roth side par move kar sakta hai.
+
+---
+
+### Case 17 — Inherited 401(k)
+
+Owner ki death
+→ beneficiary ko account milta hai
+→ distribution/RMD rules beneficiary type aur circumstances par depend karte hain
+→ surviving spouse aur non-spouse beneficiary ka treatment same nahi hota
+→ wrong withdrawal timing se unexpected taxable income aa sakta hai.
+
+---
+
+### Case 18 — Direct rollover ke baad investment continue
+
+Old 401(k) = **$400,000**
+→ direct rollover to Traditional IRA / new plan
+→ immediate tax generally avoid
+→ retirement account structure continue
+→ withdrawal jab hoga tab applicable tax rules apply honge.
+
+---
+
+### Case 19 — Roth 401(k) choose kiya hota
+
+Same salary
+→ Traditional 401(k) ke bajaye Roth 401(k) contribution
+→ current contribution par Traditional jaisa tax deduction nahi
+→ qualifying future Roth distribution generally tax-free
+→ retirement tax planning mein useful ho sakta hai.
+
+---
+
+### Case 20 — Saari retirement money ek saal mein nikaal di
+
+401(k) = **$1,000,000**
+→ age 65
+→ entire $1M withdrawn
+→ 10% early penalty nahi
+→ lekin **large taxable income** create ho sakta hai
+→ federal tax + potentially state tax exposure
+→ Medicare-related income effects bhi relevant ho sakte hain.
+
+---
+
+## Sab se dangerous practical cases
+
+**Early withdrawal**
+→ income tax + possible 10%
+
+**Loan default**
+→ distribution + possible 10%
+
+**RMD miss**
+→ excise-tax exposure
+
+**Huge one-year withdrawal**
+→ unnecessary high taxable income
+
+**Bad rollover execution**
+→ accidental taxable distribution
+
+**Wrong NUA execution**
+→ potentially large lost tax benefit
+
+**Wrong Roth conversion amount/timing**
+→ unnecessary current-year tax
+
+**Inherited account ko ignore karna**
+→ beneficiary tax/RMD problems
+
+### Tax bachane ka practical flow
+
+**401(k) contribution**
+→ **tax deferred**
+→ **investment growth**
+→ retirement mein **controlled withdrawals**
+→ low-income years mein **Roth conversion planning**
+→ eligible cases mein **penalty exceptions**
+→ proper **rollover**
+→ RMDs ko time par handle karo.
+
+Agar aapka goal **“Traditional 401(k) choose karne ke baad birth-date se death tak har IRS scenario”** hai, to main isi format mein **Age 40 → 50 → 55 → 59½ → 65 → 73 → 75 → death → spouse/children inheritance** ka complete case-flow bana sakta hoon.
